@@ -1,0 +1,98 @@
+﻿@model YellowStone.Web.ViewModels.AuditLogViewModel
+@using YellowStone.Models
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="main-body" style="margin-left:0px;">
+
+    <div class="bordered-div2">
+
+        <div id="AuditContainer">
+            <div>
+                <form asp-action="Index" method="get">
+                    <div class="row">
+
+                        <div class="col-md-10 form-group">
+                            <label class="h4">Date Filter</label>
+                            @* <h4>Date Filter</h4>*@
+                            <p>
+                                From: <input value="@ViewData["currentFromDate"]" name="fromDate" type="text" id="fromDate" placeholder=" Select start Date" autocomplete="off">
+                                &nbsp; &nbsp; &nbsp;
+                                To: <input value="@ViewData["currentToDate"]" name="toDate" type="text" id="toDate" placeholder=" Select End Date" autocomplete="off">
+                                &nbsp; &nbsp; &nbsp;
+                                Keyword: <input type="text" name="Search" value="@ViewData["currentFilter"]" placeholder="Type a keyword" />
+                                &nbsp; &nbsp; &nbsp;
+                                <input type="submit" value="Search" class="btn btn-primary btn-sm" />
+                               
+                               @* <input type="button" asp-action="ClearSearch" value="Clear search" class="btn btn-default btn-sm" />*@
+
+                            </p>
+
+                        </div>
+
+                        @*<form asp-action="Index" method="get">*@
+                        @*<div class="form-actions no-color">
+            <p>
+                <a asp-action="Index">Back to Full List</a>
+            </p>
+
+        </div>
+        <input type="submit" value="Search" class="btn btn-default btn-sm" />*@
+                    </div>
+                    <div class="row"></div>
+                        <div class="col-md-2 form-group">
+                            @if (Model.AuditLogList.Count > 0)
+                            {
+                                <input id="exportbtn" type="button" value="Export" class="btn btn-primary  btn-sm" />
+                            }
+                        </div>
+
+                        @*</form>*@
+
+                   
+                </form>
+            </div>
+            <br />
+            <br />
+            <hr />
+            @await Html.PartialAsync("_Index", Model.AuditLogList)
+        </div>
+    </div>
+
+</div>
+
+<script>
+    jQuery(function () {
+        $("#fromDate").datepicker({
+            dateFormat: 'dd-M-yy',
+            maxDate: new Date
+        });
+        $("#toDate").datepicker({
+            dateFormat: 'dd-M-yy',
+            maxDate: new Date
+        });
+    });
+
+    var table = $('#audittable').DataTable({
+        "bProcessing": true,
+        "pageLength": 10,
+        "bFilter": true,
+        "bInfo": true,
+        scrolly: 400,
+        lengthMenu: [
+            [10, 25, 50, 100, 500, -1],
+            ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+        ]
+    });
+
+    $("#exportbtn").click(function () {
+        $('<table>').append($(table.table().header()).clone())
+            .append(table.$('tr').clone()).table2excel({
+                exclude: ".noExl",
+                name: "AuditLog",
+                filename: "Audit Log"
+            });
+    });
+</script>

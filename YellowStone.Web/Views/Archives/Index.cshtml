@@ -1,0 +1,53 @@
+﻿@model YellowStone.Web.ViewModels.OnboardingViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+</script>
+
+
+<div class="main-body" style="margin-left:10px;">
+
+    <div class="row">
+        <p style="padding-right: 10px; padding-left:15px; font-size:20px;">
+            Archives
+        </p>
+    </div>
+
+    <div class="bordered-div2">
+        <div id="ContactContainer">
+            @await Html.PartialAsync("_Archives", Model.OnboardingHistoryViewModel)
+        </div>
+    </div>
+
+</div>
+
+
+
+<script>
+     var table = $('#onboardingList').DataTable({
+        "bProcessing": true,
+        "pageLength": 10,
+        "bFilter": true,
+        "bInfo": true,
+        scrolly: 400,
+        lengthMenu: [
+            [10, 25, 50, 100, 500, -1],
+            ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+        ]
+     });
+
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+
+
+</script>

@@ -1,0 +1,74 @@
+﻿@model YellowStone.Web.ViewModels.SaveRoleViewModel
+@using YellowStone.Models
+
+
+    <form asp-controller="Role" asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row form-group">
+            @*<div class="col-md-3">
+                @Html.ActionLink("Create Role", "Index", "Role", null,new {@class = "btn btn-save" })
+            </div>*@
+            <div class="col-sm-8">
+
+            </div>
+        </div>
+
+
+        <input type="hidden" asp-for="role.Id" class="form-control" placeholder="0" readonly />
+
+        <div class="row form-group">
+            <label asp-for="role.Name" class="col-sm-2 col-form-label">Name : </label>
+            <div class="col-sm-4">
+                <input asp-for="role.Name" class="form-control" maxlength="50" placeholder="Role Name" required />
+                <br>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <label class="col-sm-2 col-form-label">Department : </label>
+            <div class="col-sm-4">
+                <select id="ddlDepartment" asp-for="DepartmentId" name="DepartmentId" asp-items="@(new SelectList(Model.DepartmentList, "Id", "Name") )" class="form-control" required><option>- Please select a Department -</option></select>
+            </div>
+        </div>
+        <br>
+
+        <div class="row form-group">
+            <label class="col-sm-2 col-form-label">RoleType : </label>
+            <div class="col-sm-4">
+                <select id="ddlCategories" asp-for="RoleType" name="RoleType" asp-items="@(new SelectList(Model.RoleTypes, "Name", "Name") )" class="form-control" required onchange="showPermissions(true)";><option>- Please select a RoleType -</option></select>
+            </div>
+        </div>
+        <br>
+        <div class="row form-group">
+            <label class="col-sm-2 col-form-label">Permissions : </label>
+            <div class="col-sm-8" id="ResourceContainer">
+                <div class="row" id="chkboxDiv">
+                    @foreach (var item in Model.PermissionsList)
+                    {
+                        <div class="col-md-4">
+                            <input type="checkbox"
+                                   name="Selected" value="@item.Id" id="@item.Id" checked="@item.IsChecked" class="@item.Category" />
+                            <label for="@item.Id">@item.Name</label>
+                            <br>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <label class="col-sm-2 col-form-label"> </label>
+            <div class="col-sm-8" id="ResourceContainer" style="white-space:nowrap">
+                <table class="table" style="border :hidden 0px #fff; margin-top:-25px;">
+                    <tr>
+                        <td align="left" style="">
+                            <br>
+                            <button type="submit" class="btn btn-save" style="margin-left:0px; margin-top:0px;">Save Role</button>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+
+    </form>

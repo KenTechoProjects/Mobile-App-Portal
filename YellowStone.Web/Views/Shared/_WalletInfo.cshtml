@@ -1,0 +1,96 @@
+﻿@model YellowStone.Web.ViewModels.WalletViewModel
+@using Microsoft.Extensions.Options
+@using YellowStone.Services
+@using YellowStone.Services.WalletService
+@inject IOptions<SystemSettings> options
+@inject IOptions<WalletServiceSettings> walletOptions
+@inject YellowStone.Services.IAppConfig appConfig
+
+@if (Model != null && Model.WalletInfoViewModel.IsSuccessful)
+{
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card">
+                <h5 class="card-header">Wallet Information</h5>
+                <div class="card-body">
+                    <form>
+                        @*<input type="hidden" value="@(Guid.NewGuid().ToString().Replace("-", ""))" id="transactionReference" />*@
+                        @*<input type="hidden" value="@walletOptions.Value.Currency" id="currency" />*@
+                        <input type="hidden" value="@Model.WalletInfoViewModel.WalletId" id="walletId" />
+                        <div class="form-group row">
+                            <label for="account-name" class="col-sm-6 col-form-label">Account Name</label>
+                            <div class="col-6">
+                                <input type="text" readonly class="form-control-plaintext" id="account-name" value="@Model.WalletInfoViewModel.AccountName" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="wallet-account-number" class="col-sm-6 col-form-label">Wallet Account Number</label>
+                            <div class="col-6">
+                                <input type="text" readonly class="form-control-plaintext" value="@Model.WalletInfoViewModel.WalletAccountNumber" id="wallet-account-number" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="balance" class="col-sm-6 col-form-label">Balance</label>
+                            <div class="col-6">
+                                <input type="text" readonly class="form-control-plaintext" value="@Model.WalletInfoViewModel.Balance.ToString()" id="balance" disabled>
+                            </div>
+                        </div>
+                    </form>
+                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#fundWalletModal">Fund Wallet</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="fundWalletModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Fund Wallet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row justify-content-center">
+                        <div class="col-8">
+                            <form>
+                                <div class="form-group row text-center">
+                                    <label for="amount" class="col-4 col-form-label">Amount</label>
+                                    <div class="col-8 col-offset-2">
+                                        <input type="number" class="form-control" id="amount">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnFundWallet" class="btn btn-primary">Proceed</button>
+                </div>
+            </div>ƒ
+        </div>
+    </div>
+}
+
+<script>
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+    var baseUrl = '@appConfig.BasePath';
+
+    $('#btnFundWallet').click(() => {
+        console.log(baseUrl);
+        let amount = $('#amount').val();
+        let currency = $('#currency').val();
+        let walletId = $('#walletId').val();
+        let ref = $('#transactionReference').val();
+        const url = baseUrl + 'Wallet/FundWallet';
+        request = { amount: amount, transactionReference: ref, currency: currency, walletId: walletId };
+        console.log(`request => ${request.walletId} ${request.currency} ${request.amount} ${request.transactionReference}`);
+        AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+            DialogOkOnly(response, () => {
+                window.location = '@Url.Content("~/Wallet")';
+            });
+        });
+    });
+</script>

@@ -1,0 +1,149 @@
+﻿@model YellowStone.Web.ViewModels.UserViewModel
+@using YellowStone.Models
+@inject YellowStone.Services.IAppConfig appConfig;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<div class="main-body" style="margin-left:0px;">
+
+    <div class="bordered-div">
+        <div class="head-title-box">
+            @*<p>
+                    <button type="button" class="btn-details" style="color:white" onclick="clearCachedRoles();">Clear Roles</button>
+                </p>*@
+        </div>
+
+        <div class="row">
+            <div id="CreateNewUserContainer" class="col-lg-12" style="margin-top:-2px;">
+                @await Html.PartialAsync("_Edit", Model.User)
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row" style="margin-top:30px; color:#455a64">
+        <div class="col-md-6">
+            <a asp-action="Index" style=" color:#455a64; font-weight:500">Back to List</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="~/js/bootstrap.min.js"></script>
+<script src="~/js/jquery.min.js"></script>
+
+<script type="text/javascript">
+    var baseUrl = window.location.origin;
+
+
+    $(document).ready(function () {
+        $("#dvEditUserId").hide();
+    })
+
+    function fetchStaffDetails(SNNumber) {
+
+        alert(SNNumber);
+        if (SNNumber != '') {
+            var url = baseUrl + "/User/FetchStaffDetails?SNNumber=" + SNNumber;
+            document.getElementById("overlay").style.display = 'block';
+
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+
+                document.getElementById('Name').value = response;
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    alert('An error occurred, please try again later : ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+
+        }
+
+        return false;
+    }
+
+
+    function fetchRoles() {
+
+        if (document.getElementById('DepartmentID').value != '- Please select a Department -') {
+            var url = baseUrl + "/User/FetchRoles?DepartmentID=" + document.getElementById('DepartmentID').value;
+            document.getElementById("overlay").style.display = 'block';
+
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+
+                $("#RoleList").html(response);
+                document.getElementById("overlay").style.display = 'none';
+            }).fail(function (jqxhr, status, error) {
+                    alert('An error occurred, please try again later : ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+    function saveRole(RoleID, type1) {
+
+        if (RoleID == 0)
+            RoleID = document.getElementById('RoleID').value;
+
+        if (DepartmentID != '- Please select a Role -') {
+            var url = baseUrl + "/User/RoleDetail?RoleID=" + RoleID + "&Type=" + type1;
+            document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+                $("#RoleContainer").html(response);
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    alert('An error occurred, please try again later : ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+
+
+        }
+
+        return false;
+    }
+
+    function clearCachedRoles() {
+
+        var url = baseUrl + "/User/ClearCachedRoles";
+        document.getElementById("overlay").style.display = 'block';
+
+        $.ajax({
+            cache: false,
+            url: url
+        }).done(function (response, status, jqxhr) {
+
+            $("#RoleContainer").html(response);
+            document.getElementById("overlay").style.display = 'none';
+        })
+            .fail(function (jqxhr, status, error) {
+                alert('noAn error occurred, please try again later : ' + error);
+                document.getElementById("overlay").style.display = 'none';
+            });
+
+        return false;
+    }
+
+
+</script>

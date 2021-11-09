@@ -1,0 +1,236 @@
+﻿@model YellowStone.Web.ViewModels.RoleViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+@using YellowStone.Models.Enums
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+
+<div class="main-body" style="margin-left:0px;">
+    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateRoles")).Succeeded || ViewBag.user.IsAdmin)
+    {
+        <div class="bordered-div">
+            <div class="head-title-box">
+                <p>
+                    @(Model.SaveRole.role.Id == 0 ? "Role Profile" : "Edit Role - " + Model.SaveRole.role.Name)
+
+                </p>
+            </div>
+
+            <div class="row">
+                <div id="RoleResourceContainer" class="col-lg-12" style="margin-top:10px;">
+                    @await Html.PartialAsync("_Create", Model.SaveRole)
+                </div>
+            </div>
+
+        </div>
+    }
+    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateRoles")).Succeeded ||
+(await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveRoles")).Succeeded || ViewBag.user.IsAdmin)
+    {
+        <div class="bordered-div2">
+
+            <div id="RoleContainer">
+                @await Html.PartialAsync("_Index", Model.RoleList)
+            </div>
+
+        </div>
+
+    }
+</div>
+
+
+<!-- Resource Modal -->
+<!-- Modal List -->
+<div class="modal fade" id="ViewDetailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Permissions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="ViewDetailsContainer">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="BtnViewResources" class="btn-details" data-toggle="modal" data-target="#ResourceListModal" style="color:white; display:none"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+    $(document).ready(function () {
+        $('#chkboxDiv').find('input[type=checkbox]').prop('disabled', true);
+        $("#dvRoleId").hide();
+
+
+        var table = $('#wdb-table').DataTable({
+            "bProcessing": true,
+            "pageLength": 10,
+            "bFilter": true,
+            "bInfo": true,
+            scrolly: 400,
+            lengthMenu: [
+                [10, 25, 50, 100, 500, -1],
+                ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+            ]
+        });
+
+
+        showPermissions(false);
+    });
+
+
+     function UpdateRole(DepartmentID, actionType) {
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Role/UpdateRoleStatus?RoleId=" + DepartmentID + "&actionType=" + actionType;
+            var message = "";
+            if (actionType == '@ActionTypes.Approve.ToString()') {
+                message = "Are you sure you want to approve role?";
+            } else if (actionType == '@ActionTypes.Reject.ToString()') {
+                message = "Are you sure you want to reject role?";
+            }
+            Dialog(message, () => {
+                            window.location = url;
+            });
+        }
+
+        return false;
+    }
+
+    function showPermissions(clearValues) {
+        $('#chkboxDiv').find('input[type=checkbox]').prop('disabled', true);
+        if (clearValues == true) {
+            $('#chkboxDiv').find('input[type=checkbox]').prop('checked', false);
+        }
+        //$(cls).prop("disabled", fa);
+
+        var selectedCategory = $("#ddlCategories").val();
+        if (selectedCategory != 0) {
+            var cls = "." + selectedCategory
+            $(cls).prop("disabled", false);
+        }
+
+
+    }
+
+    function saveResource(ResourceID, type1) {
+
+        if (ResourceID == 0)
+            ResourceID = document.getElementById('ResourceID').value;
+
+        if (ResourceID != '- Please select a Permission -') {
+
+            document.getElementById("overlay").style.display = 'block';
+
+            var url = baseUrl + "/Role/ResourceDetail?ResourceID=" + ResourceID + "&Type=" + type1;
+            $.ajax({
+                cache: false,
+                url: url
+            }).done
+                (function (response, status, jqxhr) {
+                    $("#ResourceContainer").html(response);
+                    document.getElementById("overlay").style.display = 'none';
+                })
+                .fail(function (jqxhr, status, error) {
+                    alert(error + '. Kindly verify you are not inputting a duplicate.');
+                    document.getElementById("overlay").style.display = 'none';
+                });
+
+        }
+
+        return false;
+    }
+
+
+
+
+    function editRole(RoleID) {
+
+        if (RoleID > 0) {
+            var url = baseUrl + "/Role/Edit?RoleID=" + RoleID;
+            document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+                $("#RoleResourceContainer").html(response);
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    alert('An error occurred, please try again later.' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+
+        }
+
+        return false;
+    }
+
+
+    function viewResources(RoleID) {
+
+        if (RoleID > 0) {
+            var url = baseUrl + "/Role/ViewResources?RoleID=" + RoleID;
+            document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+                $("#ViewResourceContainer").html(response);
+                document.getElementById('BtnViewResources').click();
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    alert('An error occurred, please try again.');
+                    document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+    function clearCachedResources() {
+
+        var url = baseUrl + "/Role/ClearCachedResources";
+        document.getElementById("overlay").style.display = 'block';
+
+        $.ajax({
+            cache: false,
+            url: url
+        }).done(function (response, status, jqxhr) {
+            document.getElementById('Name').value = '';
+            document.getElementById('RoleID').value = '';
+
+            $("#ResourceContainer").html(response);
+            document.getElementById("overlay").style.display = 'none';
+        })
+            .fail(function (jqxhr, status, error) {
+                alert('An error occurred, please try again later.');
+                document.getElementById("overlay").style.display = 'none';
+            });
+
+        return false;
+    }
+
+
+
+</script>

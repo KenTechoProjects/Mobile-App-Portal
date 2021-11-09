@@ -1,0 +1,93 @@
+﻿@model YellowStone.Web.ViewModels.DocumentReviewViewModel
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@*@{
+        ViewData["Title"] = "Index";
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }*@
+<div id="overlay_" style="display:none">
+    <div><img class="spinner-logo" src="~/img/spinner-logo.jpg"></div>
+    <div class="spinner"></div>
+</div>
+<div class="container">
+    <div class="card">
+        <div class="card-header" style="background-color: #2F5B64; color: #fff">
+            <b>Pending approval(s)</b>
+        </div>
+        <div class="card-body">
+            <div class="row" style="margin-bottom:10px">
+                <div class="col-md-10 ">
+
+                    <div class="input-group">
+                        <input id="txtSearchText" placeholder="Enter Account Number, Phone Number or Customer name to search the list of uploaded documents waiting for approval" class=" form-control" style="margin-right:10px">
+                    </div>
+                </div>
+                <div class="col-md-2">
+
+                    <div class="input-group">
+                        <button class="btn btn-block " style="background-color: darkgoldenrod; color: #fff" id="btnSearch"><i class="fa fa-search"></i> Search</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12" id="divDocumentReviewDisplay">
+                    <div class="main-card card" style="border-top:2px solid #808080">
+                        <partial name="_DocumentReviewRecord.cshtml" for="UnapprovedDocumentResponses">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+       // var appBaseUrl = '@Model.AppBaseUrl';
+        var appBaseUrl = '@appConfig.BasePath';
+
+
+        $("#btnSearch").on('click', LoadSearchDocumentSummaries);
+
+        $("#txtSearchText").on("keyup", function (e) {
+            if (e.which == '13') {
+                LoadSearchDocumentSummaries();
+            }
+
+        });
+        function LoadSearchDocumentSummaries() {
+
+
+            var searchValue = $('#txtSearchText').val();
+            var dataUrl = appBaseUrl + "DocumentReview/GetDocumentReviews";
+            document.getElementById("overlay").style.display = 'block';
+            $.ajax({
+                type: "GET",
+                url: dataUrl,
+                data: { "searchText": searchValue },
+                dataType: "html",
+                success: function (data) {
+                    document.getElementById("overlay").style.display = 'none';
+                    $("#divDocumentReviewDisplay").html(data);
+
+                },
+                error: function(){
+                    document.getElementById("overlay").style.display = 'none';
+                }
+            }).always(function () { document.getElementById("overlay").style.display = 'none'; });
+        }
+
+        $(".showhidespinnerfordocumentview").click(function () { document.getElementById("overlay").style.display = 'block';});
+
+    });
+</script>

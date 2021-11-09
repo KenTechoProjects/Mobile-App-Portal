@@ -1,0 +1,34 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+    <div class="main-body" style="margin-left:0px;">
+
+
+        <div class="hrline"></div>
+
+        <!-- <div class="outer-div"> -->
+        <div class="search-div" style="margin-top:30px">
+           
+            <h3 style="display:block" class="faq-top-text text-center">Frequently Asked Questions?</h3>
+            <div class="button-divider-space text-center">
+                <button id="btn-customer" class="tg-btn tg-active" style="display: inline-block">
+                    Customer FAQs
+                </button>
+                <div class="divider" style="display: inline-block"></div>
+                <button id="btn-support" class="tg-btn" style="display: inline-block">
+                    Support FAQs
+                </button>
+            </div>
+        </div>
+
+        <!-- </div> -->
+
+
+        <div id="FAQContainer">
+            @await Html.PartialAsync("_ViewFAQ")
+        </div>
+
+    </div>
+

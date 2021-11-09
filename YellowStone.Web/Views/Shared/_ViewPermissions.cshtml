@@ -1,0 +1,11 @@
+﻿@model IEnumerable<YellowStone.Models.Permission>
+
+<div class="row">
+	@foreach (var item in Model)
+	{
+		<div class="col-md-4">
+			<p>@item.Name</p>
+			<br>
+		</div>
+	}
+</div>

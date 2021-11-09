@@ -1,0 +1,239 @@
+﻿@using YellowStone.Models
+@model List<User>
+@using YellowStone.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Whatsapp Dashboard">
+    <meta name="author" content="Digital Lab">
+    <title>FBN Mobile Dashboard::Login</title>
+    <!-- css-->
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/notify.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/fontawesome.css" rel="stylesheet" />
+    <!-- font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+    <div id="overlay" style="display:none">
+        <div><img class="spinner-logo" src="~/img/spinner-logo.jpg"></div>
+        <div class="spinner"></div>
+    </div>
+    <header class="fdl-login-header">
+        <img src="~/img/fbn-logo.png" class="fdl-logo">
+        <p class="logo-tag">Profile Management Dashboard</p>
+    </header>
+    <div class="wdb-login align-items-center">
+        <div class="justify-content-center">
+            <div class="row">
+                <div class="card text-white fdl-color pad-box">
+                    <div>
+                        <div class="feature">
+                            <img class="login-img" src="~/img/smartphone-bf-5-a-80-png (1).png" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card" style="width: 355px;">
+                    <div class="card-left">
+                        <form id="loginForm">
+
+                            @Html.AntiForgeryToken()
+
+                            <div id="divUsername">
+                                <p class="text-center">Please log-in to continue</p>
+                                <div flashes></div>
+                                <label class="login-label" for="staffId">User ID</label>
+                                <div style="margin-bottom: 20px;">
+                                    <img src="~/img/user.png" class="img-pos" style="width:37px">
+                                    <input id="StaffId" name="StaffId" class="form-control side-text" type="text" placeholder="e.g SN02XXXX" autocomplete="off" required>
+                                </div>
+                                <label class="login-label" for="password">Password</label>
+                                <div style="margin-bottom: 20px;">
+                                    <img src="~/img/lock.png" class="img-pos" style="width:37px">
+                                    <input id="Password" class="form-control side-text" type="password" name="Password" autocomplete="off" required>
+                                </div>
+
+                                <div class="text-center">
+                                    <label class="login-label" style="color:red">
+
+                                    </label>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn fdl-color text-white login-btn" id="login-btn">Login</button>
+                                </div>
+
+                            </div>
+                        </form>
+                        <form id="tokenForm">
+
+                            @Html.AntiForgeryToken()
+                            <div id="divToken" hidden>
+                                <p class="text-center">Submit to proceed</p>
+
+                                <label class="login-label" for="password">Token</label>
+                                <div style="margin-bottom: 50px;">
+                                    <img src="~/img/lock.png" class="img-pos" style="width:37px">
+                                    <input id="Token" class="form-control side-text" type="text" name="Token" value="123456">
+                                </div>
+
+                                <input type="hidden" id="hdfStaffId" name="StaffId">
+                                <div class="text-center">
+                                    <button class="btn fdl-color text-white " id="token-btn">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/bootstrap-notify.min.js"></script>
+    <script src="~/js/helper.js"></script>
+   <script src="~/lib/font-awesome/js/fontawesome.js"></script>
+    <script type="text/javascript">
+
+      var baseUrl = '@appConfig.BasePath';
+
+
+        $('#login-btn').click(function () {
+            Authenticate();
+        });
+
+         $('#token-btn').click(function () {
+            ValidateToken();
+        });
+
+         AddAntiTokenForgeryToken = function (data) {
+            data.__RequestVerificationToken = $('#tokenForm input[name=__RequestVerificationToken]').val();
+            return data;
+        };
+
+        AddAntiLoginForgeryToken = function (data) {
+            data.__RequestVerificationToken = $('#loginForm input[name=__RequestVerificationToken]').val();
+            return data;
+        };
+
+          function Authenticate() {
+            var username = $("#StaffId").val();
+            var password = $("#Password").val();
+
+            var url = baseUrl + "/Account/Authenticate";
+
+              if (username != "" && password != "") {
+                  var loginDetails = { StaffId: username, Password: password };
+                  var postData = { loginDetails: loginDetails }
+                  $.ajax({
+                      type: "POST",
+                      url: url,
+                      data: AddAntiLoginForgeryToken(postData),
+                      beforeSend: function () {
+                          $('#login-btn').prop("disabled", "disabled");
+                           document.getElementById("overlay").style.display = 'block';
+                      }
+                  })
+                      .done(function (res, status, jqxhr) {
+                      if (res.isSuccessful) {
+                          $('#hdfStaffId').val(res.staffId);
+                           $('#divToken').prop("hidden", false);
+                           $('#divUsername').prop("hidden", true);
+                      } else {
+                          Notify(res.message);
+                      }
+                  })
+                    .fail(function (res, status, error) {
+                    Notify("Authentication failed");
+                    })
+                    .always(function () {
+                        $('#login-btn').prop("disabled", false);
+                           document.getElementById("overlay").style.display = 'none';
+
+                    });
+              }
+              else
+              {
+                 Notify("Username or Password cannot be empty!");
+              }
+        }
+
+          $("#loginForm").submit(function (e) {
+
+            return false;
+        });
+
+         function ValidateToken() {
+            var username = $("#StaffId").val();
+            var token = $("#Token").val();
+
+            var url = baseUrl + "/Account/ValidateToken";
+
+              if (token != "") {
+                  var tokenDetails = { StaffId: username, Token: token };
+                  var postData = { tokenDetails: tokenDetails }
+                  $.ajax({
+                      type: "POST",
+                      url: url,
+                      data: AddAntiTokenForgeryToken(postData),
+                       beforeSend: function () {
+                          $('#token-btn').prop("disabled", "disabled");
+                           document.getElementById("overlay").style.display = 'block';
+
+                      }
+                  }).done(function (res, status, jqxhr) {
+                      if (res.isSuccessful) {
+                          window.location.href = "@Url.Content("~/Home/index")";
+                      }
+                      else
+                      {
+                       $('#token-btn').prop("disabled", false);
+					   document.getElementById("overlay").style.display = 'none';
+                         Notify(res.message);
+                      }
+                  })
+                   .fail(function (res, status, error) {
+                    $('#token-btn').prop("disabled", false);
+                    document.getElementById("overlay").style.display = 'none';
+                    Notify("Authentication failed");
+                  })
+                .always(function () {
+                });;
+              }
+              else
+              {
+                 Notify("Token cannot be empty!");
+              }
+        }
+
+
+          $("#tokenForm").submit(function (e) {
+
+            return false;
+          });
+
+    </script>
+</body>
+</html>

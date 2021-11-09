@@ -1,0 +1,192 @@
+﻿
+@using YellowStone.Models
+@model List<User>
+@using YellowStone.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+
+<br />
+
+@if (Model.Count() > 0)
+{
+    <table id="wdb-table" class="table table-striped table-condensed">
+        <thead class="head-title-box">
+            <tr style="color:#ffffff">
+                <th>
+                    Name
+                </th>
+                <th>
+                    Staff Id
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Role
+                </th>
+                <th>
+                    Last Login Date
+                </th>
+                <th>
+                    Created By
+                </th>
+                <th>
+                    Created Date
+                </th>
+                <th class="right">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateUser")).Succeeded)
+                    {
+                        <a class="btn-details" asp-controller="User" asp-action="Create" style="color:white; text-decoration:underline;" data-toggle="modal" data-target="#UserListModal">
+                            + Add A User
+                        </a>
+                    }
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StaffId)
+                    </td>
+                    <td>
+                        @item.Status.GetDescription()
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Role.Name)
+                    </td>
+                    <td>
+                        @if (item.LastLoginDate != null)
+                        {
+                            <p>@item.LastLoginDate</p>
+                        }
+                        else
+                        {
+                            <p>N/A</p>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedBy)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedDate)
+                    </td>
+                    <td>
+                        @if (!item.IsAdmin)
+                        {
+                            @if (ViewBag.user.IsAdmin)
+                            {
+                                <a href="#" class="btn btn-sm btn-outline-dark" onclick="return EditUser('@item.StaffId');">Edit</a>
+                                @if (item.Status == UserStatus.Inactive)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Activate');">Activate</a>
+                                }
+                                else if (item.Status == UserStatus.Active)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Deactivate');">Deactivate</a>
+                                }
+                                else if (item.Status == UserStatus.Locked)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Deactivate');">Deactivate</a>
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Unlock');">Unlock</a>
+                                }
+                            }
+                            else if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateUser")).Succeeded)
+                            {
+                                <a href="#" class="btn btn-sm btn-outline-dark" onclick="return EditUser('@item.StaffId');">Edit</a>
+                                if (item.Status == UserStatus.Locked)
+                                {
+                                    <a href="#" class="btn btn-sm btn-
+                                       outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Deactivate');">Deactivate</a>
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Unlock');">Unlock</a>
+                                }
+                                else if (item.Status == UserStatus.Inactive)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Activate');">Activate</a>
+                                }
+                                else if (item.Status == UserStatus.Active)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Deactivate');">Deactivate</a>
+                                }
+                            }
+                            else if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveUsers")).Succeeded)
+                            {
+
+                                @if (item.Status == UserStatus.Pending_Approval)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Approve');">Approve</a>
+                                    <a href="#" class="btn btn-sm btn-outline-danger" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Reject');">Reject</a>
+                                }
+                                else if (item.Status == UserStatus.Pending_Unlock)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Approve');">Approve</a>
+                                }
+                                else if (item.Status == UserStatus.Pending_Deactivation)
+                                {
+                                    <a href="#" class="btn btn-sm btn-
+                                       outline-dark" onclick="return UpdateUser('@item.StaffId','@ActionTypes.Deactivate');">Approve</a>
+                                }
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+<script>
+    var baseUrl = '@appConfig.BasePath';
+
+    function EditUser(userId) {
+        var url = baseUrl + "/User/Edit?Id=" + userId;
+        $.ajax({
+            cache: false,
+            url: url
+        }).done(function (response, status, jqxhr) {
+            $("#EditUserContainer").html(response);
+            $("#EditUserModal").modal("show");
+        })
+            .fail(function (jqxhr, status, error) {
+                alert('An error occurred, please try again later : ' + error);
+            });
+        return false;
+    }
+
+    function UpdateUser(userID, actionType) {
+
+            var url = baseUrl + "/User/UpdateStatus?userId=" + userID + "&actionType=" + actionType;
+            var message = "";
+            if (actionType == '@ActionTypes.Unlock') {
+                message = "Are you sure you want to unlock user " + userID + "?";
+            }
+            else if (actionType == '@ActionTypes.Deactivate') {
+                message = "Are you sure you want to deactivate user " + userID + "?";
+            }
+            else if (actionType == '@ActionTypes.Activate') {
+                message = "Are you sure you want to activate user " + userID + "?"
+            }
+            else if (actionType == '@ActionTypes.Approve') {
+                message = "Are you sure you want to approve this request ?";
+            }
+            else if (actionType == '@ActionTypes.Reject') {
+                message = "Are you sure you want to reject this request ?";
+            }
+
+
+        Dialog(message, () => {
+            document.getElementById("overlay").style.display = 'block';
+            window.location = url;
+        })
+
+        false;
+    }
+
+</script>

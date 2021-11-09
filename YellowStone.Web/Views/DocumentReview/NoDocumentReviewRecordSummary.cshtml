@@ -1,0 +1,16 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+
+@using YellowStone.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="col-md-12">
+    <div class="alert" role="alert" style="background-color: #2F5B64; color: #fff">
+        No document pending for approval
+    </div>
+</div>

@@ -1,0 +1,156 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+
+
+@{
+
+    if (@Model.PageBaseClass.Initiator == true)
+    {
+
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav">
+
+                    <a class="nav-home" asp-controller="Home" asp-action="Index">
+                        <img src="~/img/home.png">Dashboard
+                    </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link  nav-active" asp-controller="Contact" asp-action="Index">
+                            <span>
+                                <img src="~/img/users1.png" class="nav-side-icon" /> User Activity
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Contact" asp-action="InitiatorNotification">
+                            <span>
+                                <img src="~/img/bellring2.png" class="nav-side-icon" /> Notification
+                            </span>  (@Model.PageBaseClass.NotificationCount)
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+    else if (@Model.PageBaseClass.InitiatorNotification == true)
+    {
+
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav">
+
+                    <a class="nav-home" asp-controller="Home" asp-action="Index">
+                        <img src="~/img/home.png">Dashboard
+                    </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Contact" asp-action="Index">
+                            <span>
+                                <img src="~/img/users1.png" class="nav-side-icon" /> User Activity
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-active" asp-controller="Contact" asp-action="InitiatorNotification">
+                            <span>
+                                <img src="~/img/bellring2.png" class="nav-side-icon" /> Notification
+                            </span>  (@Model.PageBaseClass.NotificationCount)
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+    else if (@Model.PageBaseClass.FAQ == true)
+    {
+
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav">
+
+                    <a class="nav-home" asp-controller="Home" asp-action="Index">
+                        <img src="~/img/home.png">Dashboard
+                    </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Contact" asp-action="Index">
+                            <span>
+                                <img src="~/img/users1.png" class="nav-side-icon" /> User Activity
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Contact" asp-action="InitiatorNotification">
+                            <span>
+                                <img src="~/img/bellring2.png" class="nav-side-icon" /> Notification
+                            </span>  (@Model.PageBaseClass.NotificationCount)
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+    else if (@Model.PageBaseClass.InitiatorActivity == true)
+    {
+
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav">
+
+                    <a class="nav-home" asp-controller="Home" asp-action="Index">
+                        <img src="~/img/home.png">Dashboard
+                    </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link  nav-active" asp-controller="ContactApproval" asp-action="Index">
+                            <span>
+                                <img src="~/img/users1.png" class="nav-side-icon" /> User Activity
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ContactApproval" asp-action="ApprovalNotification">
+                            <span>
+                                <img src="~/img/bellring2.png" class="nav-side-icon" /> Notification
+                            </span>  (@Model.PageBaseClass.NotificationCount)
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+    else if (@Model.PageBaseClass.ApprovalNotification == true)
+    {
+
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav" id="menuLinks">
+
+                    <a class="nav-home" asp-controller="Home" asp-action="Index">
+                        <img src="~/img/home.png">Dashboard
+                    </a>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ContactApproval" asp-action="Index" id="linkUserActivity" >
+                            <span>
+                                <img src="~/img/users1.png" class="nav-side-icon" /> User Activity
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-active" asp-controller="ContactApproval" asp-action="ApprovalNotification"  id="linkNotification">
+                            <span>
+                                <img src="~/img/bellring2.png" class="nav-side-icon" /> Notification
+                            </span>  (@Model.PageBaseClass.NotificationCount)
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+}

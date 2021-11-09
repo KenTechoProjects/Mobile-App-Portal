@@ -1,0 +1,80 @@
+﻿
+@model YellowStone.Web.ViewModels.AccountDetailsViewModel
+
+<div class="row" style="padding:20px 70px 20px 70px;">
+    @if (Model.IsSuccessful)
+    {
+
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Account Number : </label>
+                    <label name="lblAccountNumber" id="lblAccountNumber"> @Model.AccountNumber </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Account Name : </label>
+                    <label name="lblAcctName" id="lblAcctName"> @Model.AccountName</label>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">E-Mail Address : </label>
+                    <label name="lblEmailAddress" id="lblEmailAddress"> @Model.Email </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Phone Number : </label>
+                    <label name="lblMobile" id="lblMobile"> @Model.MobileNo </label>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Account Type : </label>
+                    <label name="lblAccountType" id="lblAccountType"> @Model.AccountType </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Account Status : </label>
+                    <label name="lblAccountStatus" id="lblAccountStatus"> @Model.AccountStatus </label>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">CIF : </label>
+                    <label name="lblCustomerId" id="lblCustomerId"> @Model.CustomerId </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Branch Code : </label>
+                    <label name="lblBranch" id="lblBranch"> @Model.BranchCode</label>
+                </div>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="col-lg-12 text-center">
+            <label style="font-weight:500; color:red">Could not find account</label>
+        </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+
+ var isSuccessful = '@Model.IsSuccessful';
+
+    if (isSuccessful != 'True') {
+        $("#btnProceed").prop("disabled", true);
+    } else {
+        $("#btnProceed").prop("disabled", false);
+        $('#hdfAccountName').val('@Model.AccountName');
+        $('#hdfBranchCode').val('@Model.BranchCode');
+
+    }
+    })
+
+</script>

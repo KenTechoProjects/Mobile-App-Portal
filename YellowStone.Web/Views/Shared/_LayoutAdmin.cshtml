@@ -1,0 +1,138 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] -FBN Mobile Dashboard</title>
+
+
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/jquery-confirm.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/jqueryui.css" />
+    <link href="~/css/notify.css" rel="stylesheet" />
+
+    <!-- font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <link href="~/css/jquery.dataTables.min.css" rel="stylesheet" />
+
+    <style>
+        header li {
+            list-style-type: none;
+        }
+
+        ul.sub-menu {
+            position: absolute;
+            width: 200px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+            border-radius: 2px;
+            display: none
+        }
+
+        .sub-menu a {
+            color: #455a64;
+            width: 190px
+        }
+
+            .sub-menu a:hover {
+                color: #455a64;
+                cursor: pointer;
+                text-decoration: none;
+            }
+    </style>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/jqueryui.js" asp-append-version="true"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery-confirm.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jquery.table2excel.js"></script>
+    <script src="~/js/jquery.dataTables.min.js"></script>
+    <script src="~/js/bootstrap-notify.min.js"></script>
+    <script src="~/js/helper.js"></script>
+</head>
+<body>
+
+    <div id="overlay" style="display:none">
+        <div><img class="spinner-logo" src="~/img/spinner-logo.jpg"></div>
+        <div class="spinner"></div>
+    </div>
+
+    <header class="fdl-header">
+        @await Html.PartialAsync("_HeaderLayout")
+    </header>
+
+    <div class="fdl-body" style="display:inline-block">
+        @await Html.PartialAsync("_MenuAdminLayout")
+    </div>
+
+    <div class="main-body">
+
+        <p class="head-title">@Model.PageBaseClass.AdminPageName</p><hr>
+        <div flashes></div>
+        @RenderBody()
+
+        <footer>
+            @await Html.PartialAsync("_FooterLayout")
+        </footer>
+    </div>
+    <div class="modal fade" id="FaqModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                    <h5 class="modal-title" id="exampleModalLongTitle">FAQs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" style="color:white">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-sm-12" id="FaqsContainer">
+                            @await Html.PartialAsync("_FAQs")
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    @* <button type="button" id="BtnViewUsers" class="btn-details" data-toggle="modal" data-target="#UserListModal" style="color:white; display:none"></button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#FaqLink').click(() => {
+
+            $("#FaqModal").modal();
+        })
+
+        $('li.profile-box').click(function () {
+            $(this).children('ul').slideToggle();
+        });
+
+
+
+
+            //Prevents the use of special characters...
+            //$("input").on("keypress paste", function (e) {
+            //	var c = this.selectionStart, v = $(this).val();
+            //	if (e.type == "keypress")
+            //		var key = String.fromCharCode(!e.charCode ? e.which : e.charCode)
+            //	else
+            //		var key = e.originalEvent.clipboardData.getData('Text')
+            //	var val = v.substr(0, c) + key + v.substr(c, v.length)
+            //	if (!val.match(/^[\w\s]+$/) || val.match(/^[\w\s]+$/).toString() != val) {
+            //		e.preventDefault()
+            //		return false
+            //	}
+            //});
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

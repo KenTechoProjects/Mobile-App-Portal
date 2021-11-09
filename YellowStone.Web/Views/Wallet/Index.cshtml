@@ -1,0 +1,213 @@
+﻿@model YellowStone.Web.ViewModels.WalletViewModel
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="~/css/notify.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+</script>
+
+
+<input type="hidden" id="hdfCurrentUser" value="@ViewBag.CurrentUser" />
+<input type="hidden" id="hdfAccountNumber" value="@ViewBag.AccountNumber" />
+<input type="hidden" id="hdfAccountName" />
+<input type="hidden" id="hdfBranchCode" />
+<input type="hidden" id="hdfId" value="@ViewBag.Id" />
+<input type="hidden" id="hdfCustomerId" />
+
+<br />
+<div class="row justify-content-center">
+    <div class="col-lg-3 col-lg-offset-6 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-6 col-xs-offset-3">
+        <div class="input-group left">
+            <input type="text" class="form-control cus-search" placeholder="Search : Wallet Id" id="txtSearch">
+            <span class="input-group-btn">
+                <button id="btnSearch" class="btn btn-search btn-primary" type="button"><i class="fa fa-search fa-fw"></i> Search</button>
+            </span>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-10 col-xs-10" id="wallet-information">
+
+    </div>
+
+    <div class="col-lg-5 col-md-10 col-xs-10" id="account-information" hidden>
+
+    </div>
+</div>
+
+<br />
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-5 col-md-10 col-xs-10" id="linking-history" hidden>
+
+    </div>
+</div>
+<br />
+
+<div class="row justify-content-center" id="divButtons" hidden>
+
+    <div class="col-lg-3 col-lg-offset-6 text-center">
+        <input type="button" id="btnBack" value="<< Back" class="btn btn-default" /> &nbsp;&nbsp;
+        <input type="submit" id="btnProceed" value="Initiate >>" class="btn btn-primary" />
+    </div>
+
+</div>
+
+<div class="modal fade" id="addAccountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLabel">Link Account </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                    <div class="col-8">
+                        <form>
+                            <div class="form-group row text-center">
+                                <label for="accountNumber" class="col-4 col-form-label">Account Number</label>
+                                <div class="col-8 col-offset-2">
+                                    <input type="text" class="form-control" id="txt-accountNumber">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-get-account" class="btn btn-primary">Proceed >></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+
+    $(document).ready(function () {
+
+    });
+    $('#btnSearch').click(() => {
+        $("#wallet-details-View").html("");
+        var txtSearch = $('#txtSearch').val();
+        if (!txtSearch) {
+            Notify("Please enter wallet id to search ");
+            return;
+        }
+        var url = baseUrl + `/Wallet/GetWallet?walletId=${txtSearch}`
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            if (response.Code != null) {
+                Notify("error");
+                return;
+            }
+            $("#wallet-information").html(response);
+            //if (response.length > 1) {
+
+               
+            //}
+           
+        });
+    });
+
+    $('#btn-get-account').click(() => {
+        $("#account-information").html("");
+        $('#account-information').prop('hidden', false);
+
+        var txtSearch = $('#txt-accountNumber').val();
+        if (!txtSearch) {
+            Notify("Please enter account number to link");
+            return;
+        }
+
+        var url = baseUrl + `/Wallet/GetAccountDetails?accountNumber=${txtSearch}`;
+           $('#addAccountModal').modal('hide');
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+
+         //$('#addAccountModal').modal('hide');
+         $("#account-information").html(response);
+        });
+    });
+
+     function GetLinkingHistory(walletId) {
+        var url = baseUrl + '/Wallet/GetRequests?walletNumber=' + walletId;
+         AjaxRequest(url, 'GET', null,timeoutUrl,  function (response) {
+             $("#linking-history").html(response);
+        $('#linking-history').prop('hidden', false);
+         });
+    }
+
+    $('#btnProceed').click(() => {
+        let CIF = $('#lblCustomerId').html();
+        let WalletId = $('#walletId').val();
+        let AccountNumber = $('#lblAccountNumber').html();
+        let AccountName = $('#lblAcctName').html();
+        let WalletPhone = $('#wallet-phonenumber').val();
+        let BankPhone = $('#lblMobile').html();
+        let accountStatus = $('#lblAccountStatus').html();
+
+        if (accountStatus == "Dormant" || accountStatus == "Inactive") {
+           Notify("Account status is invalid");
+            return;
+        }
+        const url = baseUrl + '/Wallet/LinkAccount';
+        request = { 'CIF': CIF, 'WalletId': WalletId, 'AccountNumber': AccountNumber, 'AccountName': AccountName, 'BankPhoneNumber':BankPhone, 'WalletPhoneNumber':WalletPhone };
+        console.log(`request => ${request.CIF} ${request.WalletId} ${request.AccountNumber} ${request.AccountName}`);
+         $("#btnProceed").prop('disabled', true);
+        Dialog("Are you sure you want to submit this request?", function () {
+            AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+                DialogOkOnly(response, () => {
+                    window.location = '@Url.Content("~/Notifications")';
+                });
+            },
+            function (error) {
+            $("#btnProceed").prop('disabled', false);
+            $.alert(error);
+       });
+        });
+    });
+
+    //Prevents the use of special characters...
+		//$("#txtSearch").on("keypress paste", function (e) {
+        //var c = this.selectionStart,
+        //v = $(this).val();
+		//	if (e.type == "keypress")
+		//		var key = String.fromCharCode(!e.charCode ? e.which : e.charCode)
+		//	else
+		//		var key = e.originalEvent.clipboardData.getData('Text')
+		//	var val = v.substr(0, c) + key + v.substr(c, v.length)
+		//	if (!val.match(/^[\w\s]+$/) || val.match(/^[\w\s]+$/).toString() != val) {
+		//		e.preventDefault()
+		//		return false
+		//	}
+  //      });
+
+     $("#txtSearch").bind('keypress paste',function()
+        {
+       setTimeout(function()
+       { 
+          //get the value of the input text
+          var data= $('#txtSearch').val() ;
+          //replace the special characters to '' 
+          var dataFull = data.replace(/[^\w\s]/gi, '');
+          //set the new value of the input text without special characters
+          $('#txtSearch').val(dataFull);
+       });
+
+    });
+
+</script>

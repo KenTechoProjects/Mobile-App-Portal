@@ -1,0 +1,283 @@
+﻿@model YellowStone.Web.ViewModels.LimitManagementViewModel
+@using YellowStone.Models.Enums
+@using YellowStone.Authorization
+@using Microsoft.AspNetCore.Authorization
+
+@inject IAuthorizationService AuthorizationService;
+@inject YellowStone.Services.IAppConfig appConfig;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+@if (Model.Limits.Count() > 0)
+{
+    int sn = 1;
+    <div class="row">
+        <div class="col-lg-8" style="padding:20px 40px 20px 40px" ;>
+
+            <table id="wdb-table" class="table table-striped table-condensed">
+                <thead class="head-title-box">
+                    <tr style="color:#ffffff">
+
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Transaction Type
+                        </th>
+                        <th>
+                            One Time Limit
+                        </th>
+                        <th>
+                            Daily Limit
+                        </th>
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Limits)
+                    {
+                        <tr>
+
+                            <td id="limitID">
+                                @sn
+                            </td>
+                            <td>
+                                @item.TransactionType.GetDescription()
+                            </td>
+                            <td id="SingleLimit">
+                                @Html.DisplayFor(modelItem => item.SingleLimit)
+                            </td>
+                            <td id="DailyLimit">
+                                @Html.DisplayFor(modelItem => item.DailyLimit)
+                            </td>
+                            <td>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateLimit")).Succeeded)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return EditLimit('@item.TransactionType', '@item.SingleLimit', '@item.DailyLimit');">Modify</a>
+                                }
+
+                            </td>
+
+                        </tr>
+                        sn++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
+
+<br />
+<br />
+<br />
+
+@if (Model.LimitRequests.Count() > 0 && !Model.User.IsAdmin)
+{
+    int sn = 1;
+    <h5>Pending Requests</h5>
+    <br />
+
+    <hr />
+    <div class="row">
+        <div class="col-lg-8" style="padding:20px 40px 20px 40px" ;>
+
+            <table id="wdb-table" class="table table-striped table-condensed">
+                <thead class="head-title-box">
+                    <tr style="color:#ffffff">
+
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Transaction Type
+                        </th>
+                        <th>
+                            One Time Limit
+                        </th>
+                        <th>
+                            Daily Limit
+                        </th>
+                        <th>Status</th>
+
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.LimitRequests)
+                    {
+                        <tr>
+
+                            <td id="limitID">
+                                @sn
+                            </td>
+                            <td>
+                                @item.TransactionType.GetDescription()
+                            </td>
+                            <td id="SingleLimit">
+                                @Html.DisplayFor(modelItem => item.SingleLimit)
+                            </td>
+                            <td id="DailyLimit">
+                                @Html.DisplayFor(modelItem => item.DailyLimit)
+                            </td>
+                            <td>
+                                @item.Status.GetDescription()
+                            </td>
+                            <td>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveLimit")).Succeeded && item.Status == RequestStatus.Pending)
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-dark" onclick="return ApproveLimit('@item.Id');">Approve</a>
+
+                                }
+                            </td>
+
+                        </tr>
+                        sn++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
+
+
+<!-- User Modal List -->
+<div class="modal fade" id="LimitDetailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-lg-12" id="LimitDetailContainer">
+
+                        <div class="row form-group">
+                            <label class="col-lg-3 col-form-label">Transaction Type:</label>
+                            <div class="col-lg-6">
+                                <input class="form-control" id="txtTransactionType" readonly />
+                            </div>
+                        </div>
+                        <input id="hdfId" type="hidden" />
+
+                        <br />
+                        <div class="row form-group">
+                            <label class="col-lg-3 col-form-label">One Time Limit :</label>
+                            <div class="col-lg-6">
+                                <input class="form-control" id="txtSingleLimit" />
+                            </div>
+                        </div>
+
+                        <br />
+                        <div class="row form-group">
+                            <label class="col-lg-3 col-form-label">Daily Limit:</label>
+                            <div class="col-lg-6">
+                                <input class="form-control" id="txtDailyLimit" />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row form-group">
+                            <div class="col-lg-3"></div>
+                            <div class="col-lg-4">
+                                <button type="button" id="btnSubmit" class="form-control btn btn-save">Submit</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var baseUrl = '@appConfig.BasePath';
+
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+    $(document).ready(function () {
+
+      $('#wdb-table').DataTable({
+            "bProcessing": true,
+            "pageLength": 10,
+            "bFilter": true,
+            "bInfo": true,
+            scrolly: 400,
+            lengthMenu: [
+                [10, 25, 50, 100, 500, -1],
+                ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+            ]
+        });
+
+
+    });
+
+
+
+    function EditLimit( transactionType, singleLimit, dailyLimit) {
+
+        $("#txtTransactionType").val(transactionType);
+        $("#txtSingleLimit").val(singleLimit);
+        $("#txtDailyLimit").val(dailyLimit);
+      //  $("#hdfId").val(ID);
+        $("#LimitDetailModal").modal("show");
+
+
+    }
+
+
+      function ApproveLimit(id) {
+
+       
+       var request = { 'ID': id};
+
+           Dialog('Are you sure you want to approve the Global Limits' , () => {
+                var url = baseUrl + '/Limits/ApproveLimit';
+                AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+                DialogOkOnly(response, () => {
+                window.location = '@Url.Content("~/Limits")';
+             });
+           });
+        });
+
+    }
+
+    $("#btnSubmit").click(() => {
+
+     var transactionType = $("#txtTransactionType").val();
+     var singleLimit =  $("#txtSingleLimit").val();
+     var dailyLimit = $("#txtDailyLimit").val();
+
+     var request = { 'SingleLimit': singleLimit, 'TransactionType': transactionType, 'DailyLimit': dailyLimit};
+
+           Dialog('Are you sure you want to modify the Global Limits' , () => {
+                var url = baseUrl + '/Limits/ChangeLimit';
+                AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+                DialogOkOnly(response, () => {
+                window.location = '@Url.Content("~/Limits")';
+             });
+           });
+        });
+    });
+
+
+    $('.modal').on('show.bs.modal', function () {
+        $('.modal').not($(this)).each(function () {
+            $(this).modal('hide');
+        });
+    });
+</script>

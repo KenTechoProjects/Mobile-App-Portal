@@ -1,0 +1,123 @@
+﻿@model YellowStone.Web.ViewModels.FAQViewModel
+@{
+    ViewData["Title"] = "Index";
+    if (Model.PageBaseClass.User.IsAdmin)
+    {
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+}
+
+
+<div class="main-body" style="margin-left:0px;">
+
+
+  
+    <div class="search-div" style="margin-top:30px">
+
+        <h3 style="display:block" class="faq-top-text text-center">Frequently Asked Questions?</h3>
+        <div class="button-divider-space text-center">
+            <button id="btn-customer" class="tg-btn tg-active" style="display: inline-block">
+                Customer FAQs
+            </button>
+            <div class="divider" style="display: inline-block"></div>
+            <button id="btn-support" class="tg-btn" style="display: inline-block">
+                Support FAQs
+            </button>
+        </div>
+    </div>
+
+
+    <div id="FAQContainer">
+        @await Html.PartialAsync("_ViewFAQ")
+    </div>
+
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+<link href="~/css/font-awesome.min.css" rel="stylesheet" />
+<script>
+    var checkClass;
+    var pickSpan;
+    var check = check || true;
+    var ToggleFunc = function (divClass, spanClass) {
+        if (checkClass == undefined) {
+            checkClass = divClass;
+            pickSpan = spanClass;
+            if (check) {
+                $('#' + spanClass).removeClass("fa-plus").addClass("fa-minus");
+                check = false;
+            } else {
+                $('#' + spanClass).removeClass("fa-minus").addClass("fa-plus");
+                check = true;
+            }
+        } else {
+            if (checkClass == divClass) {
+                if (check) {
+                    $('#' + spanClass).removeClass("fa-plus").addClass("fa-minus");
+                    check = false;
+                } else {
+                    $('#' + spanClass).removeClass("fa-minus").addClass("fa-plus");
+                    check = true;
+                }
+            } else {
+                check = true;
+                $('#' + pickSpan).removeClass("fa-minus").addClass("fa-plus");
+                if (check) {
+                    $('#' + spanClass).removeClass("fa-plus").addClass("fa-minus");
+                    check = false;
+                } else {
+                    $('#' + spanClass).removeClass("fa-minus").addClass("fa-plus");
+                    check = true;
+                }
+                checkClass = divClass;
+                pickSpan = spanClass;
+            }
+
+        }
+
+    }
+    // script for loader
+    // var overlay = document.getElementById("overlay");
+    // window.addEventListener('mousemove', function(){
+    // overlay.style.display = 'none';
+    // })
+    // script for logout
+    $('li.profile-box').hover(function () {
+        $(this).children('ul').slideDown();
+    }, function () {
+        $(this).children('ul').slideUp();
+    });
+
+    jQuery(document).ready(function () {
+        var bool = bool || true;
+        $("#nav-parent").click(function () {
+            if (bool) {
+                $("#toggle-icon").removeClass('fa-angle-down').addClass('fa-angle-up');
+                bool = false;
+            } else {
+                $("#toggle-icon").removeClass('fa-angle-up').addClass('fa-angle-down');
+                bool = true;
+            }
+        });
+
+        $("#btn-customer").click(function () {
+            $("#btn-support").removeClass('tg-active');
+            $(".faq-support").hide();
+            $(".faq-customer").show();
+            $("#btn-customer").addClass('tg-active');
+        });
+        $("#btn-support").click(function () {
+            $("#btn-customer").removeClass('tg-active');
+            $(".faq-customer").hide();
+            $(".faq-support").show();
+            $("#btn-support").addClass('tg-active');
+        });
+
+    })
+
+</script>

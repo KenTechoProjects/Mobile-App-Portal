@@ -1,0 +1,62 @@
+﻿@model YellowStone.Web.ViewModels.WalletViewModel
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="~/css/notify.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+</script>
+
+<div>
+    <input type="hidden" id="hdfCurrentUser" value="@ViewBag.CurrentUser" />
+    <input type="hidden" id="hdfAccountNumber" value="@ViewBag.AccountNumber" />
+    <input type="hidden" id="hdfAccountName" />
+    <input type="hidden" id="hdfBranchCode" />
+    <input type="hidden" id="hdfId" value="@ViewBag.Id" />
+
+    <div id="view-1">
+        <br />
+        <div class="row justify-content-center">
+            <div class="col-lg-3 col-lg-offset-6">
+                <div class="input-group left">
+                    <input type="text" class="form-control cus-search" placeholder="Search : Wallet ID" id="txtSearch">
+                    <span class="input-group-btn">
+                        <button id="btnSearch" class="btn btn-search btn-primary" type="button"><i class="fa fa-search fa-fw"></i> Search</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div id="wallet-details-View"></div>
+        <br />
+    </div>
+</div>
+
+<script>
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+
+    $('#btnSearch').click(() => {
+        $("#wallet-details-View").html("");
+        var txtSearch = $('#txtSearch').val();
+        if (!txtSearch) {
+            Notify("Please enter wallet id to search");
+            return;
+        }
+        var url = baseUrl + `/Wallet/GetWallet?walletId=${txtSearch}`
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            if (response.Code != null) {
+                Notify("error");
+                return;
+            }
+            $("#wallet-details-View").html(response);
+        });
+    });
+</script>

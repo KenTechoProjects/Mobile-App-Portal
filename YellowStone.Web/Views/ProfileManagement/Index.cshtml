@@ -1,0 +1,217 @@
+﻿@model YellowStone.Web.ViewModels.ProfileManagementViewModel
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/css/notify.css" rel="stylesheet" />
+<div>
+
+    <input type="hidden" id="hdfCurrentUser" value="@ViewBag.CurrentUser" />
+    <input type="hidden" id="hdfAccountNumber" value="@ViewBag.AccountNumber" />
+    <input type="hidden" id="hdfAccountName" />
+    <input type="hidden" id="hdfBranchCode" />
+    <input type="hidden" id="hdfId" value="@ViewBag.Id" />
+    <br />
+    <div class="row justify-content-center">
+        <div class="col-lg-3 col-lg-offset-6 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-6 col-xs-offset-3">
+            <div class="input-group left">
+                <input type="text" class="form-control cus-search" placeholder="Search : Username" id="txtSearch">
+                <span class="input-group-btn">
+                    <button id="btnSearch" class="btn btn-search btn-primary" type="button"><i class="fa fa-search fa-fw"></i> Search</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div class="row justify-content-center">
+        <div class="col-12" id="divCustomerProfile">
+
+        </div>
+    </div>
+
+
+
+    <br />
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div id="tabs">
+                <ul>
+                    <li><a href="#tabs-1">Profile Management</a></li>
+                    <li><a href="#tabs-2">Device Management</a></li>
+                </ul>
+                <div id="tabs-1">
+                    <div class="row">
+                        <div class="form-group col-xs-4 col-md-4">
+                            <label for="action" class="control-label">Action</label>
+                            <select id="ddlAction" class="form-control">
+                                <option value="LockProfile">Lock Profile</option>
+                                <option value="UnlockProfile">Unlock Profile</option>
+                                <option value="ResetProfile">Reset Questions</option>
+                            </select>
+
+                            <label for="actionReaction" style="margin-top:15px" class="control-label"><span id="spnActionReason">Lock Profile</span>&nbsp;Reason</label>
+                            <select id="ddlActionReason" class="form-control">
+                                <option value="0">--Select--</option>
+                                <option value="CustomerValidated">Customer Validated</option>
+                                <option value="ErrorneousAction">Errorneous Action</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-xs-4 col-md-4">
+                            <label for="remark" class="control-label">Remark</label>
+                            <textarea rows="4" cols="30" class="form-control" name="description" id="txtRemark"></textarea>
+                        </div>
+                        <div class="form-group col-xs-4 col-md-4">
+                            <label for="remark" class="control-label">Calling Phone</label>
+                            <input type="text" class="form-control" id="txtCustomerPhone" placeholder="Calling Phone Number">
+                            <br />
+                            <input type="button" class="form-control btn btn-primary" value="Lock Profile" id="btnSubmit">
+
+                        </div>
+
+                    </div>
+                </div>
+                <div id="tabs-2">
+                    <div id="divCustomerDevices"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+
+    $(document).ready(function () {
+        $("#tabs").tabs();
+        RenderDefaultView();
+    });
+
+
+    $('#btnSearch').click(() => {
+        $("#divCustomerProfile").html("");
+        var username = $('#txtSearch').val();
+        if (username.length < 1) {
+            Notify("Please enter account number to search");
+            return;
+        }
+        $("#hdfAccountNumber").val(username);
+        GetProfileDetails(username);
+        GetDeviceDetails(username)
+    });
+
+    $("#btnSubmit").click(() => {
+        var actionType = $("#ddlAction").val();
+        var actionReason = $("#ddlActionReason").val();
+        var comment = $("#txtRemark").val();
+        var callingPhone = $("#txtCustomerPhone").val();
+        var accountNumber = $("#hdfAccountNumber").val();
+        var accountName = $("#hdfAccountName").val();
+
+        if (actionReason == "0") {
+
+            Notify("Please select a reason");
+            return;
+        }
+
+        if (comment.length < 1) {
+            Notify("Please enter remarks");
+            return;
+        };
+
+        var msg = 'lock';
+
+        if (actionType == '@RequestTypes.ResetProfile') {
+            msg = 'reset';
+        } else if (actionType == '@RequestTypes.UnlockProfile') {
+            msg = 'unlock';
+        }
+
+        var request = { 'AccountName': accountName, 'RequestType': actionType, 'Reason': actionReason, 'Comment': comment, 'CallingPhone': callingPhone, 'AccountNumber': accountNumber }
+
+        $("#btnSubmit").prop('disabled', true);
+        Dialog(`Are you sure you want to ${msg} the profile ?`, () => {
+            var url = baseUrl + '/ProfileManagement/InitiateRequest';
+            AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+                DialogOkOnly(response, () => {
+                    $("#txtCustomerPhone").val('');
+                    $("#ddlActionReason").val('0');
+                    $("#txtRemark").val('');
+                    $("#btnSubmit").prop('disabled', false);
+                });
+            },
+                function (error) {
+                    $("#btnSubmit").prop('disabled', false);
+                    $.alert(error);
+                });
+        });
+    });
+
+
+    $("#ddlAction").change(() => {
+        $("#spnActionReason").html($("#ddlAction option:selected").text());
+        $("#btnSubmit").val($("#ddlAction option:selected").text());
+    });
+
+    function GetProfileDetails(accountNumber) {
+        var url = baseUrl + `/ProfileManagement/CustomerInfo?accountNumber=${accountNumber}`;
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divCustomerProfile").html(response);
+        });
+    }
+
+
+    function UpdateDevice(deviceId, deviceModel, actionType) {
+
+        let msg = "";
+        if (actionType == '@RequestTypes.ActivateDevice') {
+            msg = 'activate';
+        } else if (actionType == '@RequestTypes.DeactivateDevice') {
+            msg = 'deactivate';
+        } else if (actionType == '@RequestTypes.ReleaseDevice') {
+            msg = 'release';
+        }
+
+        var accountNumber = $("#hdfAccountNumber").val();
+        var accountName = $("#hdfAccountName").val();
+        var request = { 'AccountName': accountName, 'DeviceId': deviceId, 'AccountNumber': accountNumber, 'RequestType': actionType, 'DeviceModel': deviceModel }
+        Dialog(`Are you sure you want to ${msg} this device?`, () => {
+            var url = baseUrl + `/ProfileManagement/ChangeDeviceStatus`;
+            AjaxRequest(url, 'POST', request, timeoutUrl, function (response) {
+                DialogOkOnly(response, () => {
+                    GetDeviceDetails(accountNumber);
+                });
+            });
+        });
+
+    }
+
+
+
+    function GetDeviceDetails(accountNumber) {
+        var url = baseUrl + `/ProfileManagement/CustomerDevices?accountNumber=${accountNumber}`;
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divCustomerDevices").html(response);
+        });
+    }
+
+
+  
+    function RenderDefaultView() {
+        $("#view-1").show();
+        $("#tabs").hide();
+    }
+</script>

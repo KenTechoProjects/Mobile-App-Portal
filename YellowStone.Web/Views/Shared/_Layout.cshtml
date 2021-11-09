@@ -1,0 +1,191 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FBN Mobile Dashboard</title>
+
+
+    <environment include="Development">
+        <link href="~/css/style.css" rel="stylesheet">
+        <link href="~/css/bootstrap.min.css" rel="stylesheet">
+        @*<link href="~/css/font-awesome.min.css" rel="stylesheet">*@
+        <!-- font -->
+        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    </environment>
+
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/style.css"
+              asp-fallback-href="~/css/style.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/bootstrap.min.css" asp-append-version="true" />
+    </environment>
+
+    <style>
+        header li {
+            list-style-type: none;
+        }
+
+        ul.sub-menu {
+            position: absolute;
+            width: 200px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+            border-radius: 2px;
+            display: none
+        }
+
+        .sub-menu a {
+            color: #455a64;
+            width: 190px
+        }
+
+            .sub-menu a:hover {
+                color: #455a64;
+                cursor: pointer;
+                text-decoration: none;
+            }
+    </style>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
+
+</head>
+<body>
+
+    <div id="overlay" style="display:none">
+        <div><img class="spinner-logo" src="~/img/spinner-logo.jpg"></div>
+        <div class="spinner"></div>
+    </div>
+
+    <header class="fdl-header">
+        @await Html.PartialAsync("_HeaderLayout")
+    </header>
+
+    <div class="fdl-body" style="display:inline-block">
+        @await Html.PartialAsync("_MenuLayout")
+    </div>
+
+    <div class="main-body">
+
+        <div flashes></div>
+        @RenderBody()
+
+        <footer>
+            @await Html.PartialAsync("_FooterLayout")
+        </footer>
+    </div>
+
+    
+
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
+
+
+
+    <script type="text/javascript">
+        $('#FaqLink').click(() => {
+
+              $("#FaqModal").modal();
+        })
+
+        
+
+        $('li.profile-box').hover(function () {
+            $(this).children('ul').slideDown();
+        }, function () {
+            $(this).children('ul').slideUp();
+        });
+
+
+        function paginate() {
+            var table = "#wdb-table";
+            $('.pagination').html('')
+            var trnum = 0
+            var rowList = 10
+            var totalRows = $(table + ' tbody tr').length
+            $(table + ' tr:gt(0)').each(function () {
+                trnum++
+                if (trnum > rowList) {
+                    $(this).hide()
+                }
+                if (trnum <= rowList) {
+                    $(this).show()
+                }
+            })
+            if (totalRows > rowList) {
+                var pagenum = Math.ceil(totalRows / rowList)
+                for (var i = 1; i <= pagenum;) {
+                    $('.pagination').append('<li data-page="' + i + '">\<span>' + i++ + '<span class="sr-only">(current)</span>\</li>').show()
+                }
+            }
+            $('.pagination li:first-child').addClass('active')
+            $('.pagination li').on('click', function () {
+                var pagenumb = $(this).attr('data-page')
+                var trIndex = 0;
+                $('.pagination li').removeClass('active')
+                $(this).addClass('active')
+                $(table + ' tr:gt(0)').each(function () {
+                    trIndex++
+                    if (trIndex > (rowList * pagenumb) || trIndex <= ((rowList * pagenumb) - rowList)) {
+                        $(this).hide()
+                    } else {
+                        $(this).show()
+                    }
+                })
+            })
+        }
+
+        window.onload = paginate;
+
+
+        //Prevents the use of special characters...
+        $("input").on("keypress paste", function (e) {
+            var c = this.selectionStart, v = $(this).val();
+            if (e.type == "keypress")
+                var key = String.fromCharCode(!e.charCode ? e.which : e.charCode)
+            else
+                var key = e.originalEvent.clipboardData.getData('Text')
+            var val = v.substr(0, c) + key + v.substr(c, v.length)
+            if (!val.match(/^[\w\s]+$/) || val.match(/^[\w\s]+$/).toString() != val) {
+                e.preventDefault()
+                return false
+            }
+        });
+
+
+        function setActiveLink(setActive) {
+            if ($("a").hasClass('active'))
+                $("a").removeClass('active');
+            if (setActive)
+                $("#" + setActive).addClass('active');
+        }
+
+        $(function () {
+            $("a").click(function () {
+                setActiveLink(this.id);
+            });
+        });
+
+        function setActiveLink(setActive) {
+            var links = document.querySelectorAll("#menuLinks a");
+            Array.prototype.map.call(links, function (e) {
+                e.className = "";
+                if (e.id == setActive)
+                    e.className = "active";
+            })
+        }
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

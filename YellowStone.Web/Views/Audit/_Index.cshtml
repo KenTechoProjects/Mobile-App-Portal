@@ -1,0 +1,134 @@
+﻿@using YellowStone.Models
+@model List<AuditLog>
+
+<table id="audittable" class="table table-striped table-condensed">
+    <thead class="head-title-box">
+        <tr style="color:#ffffff">
+            <th>
+                SN
+            </th>
+            <th>
+                Staff Id
+            </th>
+            <th>
+                Staff Branch/Dept
+            </th>
+            <th>
+                IP Address
+            </th>
+            <th>
+                User ID
+            </th>
+            <th>
+                Action Performed
+            </th>
+            @*<th>
+                URL Accessed
+            </th>*@
+            @*<th width="15%">Description</th>*@
+            <th>
+                Timestamp
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var x =1;
+        }
+
+
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td width="5%">
+                    @x
+                </td>
+                <td width="10%">
+                    @Html.DisplayFor(modelItem => item.StaffId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserBranch)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IpAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ActionPerformed)
+                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.UrlAccessed)
+                </td>
+                <td width="15%">
+                    @Html.DisplayFor(modelItem => item.Extra)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDate)
+                </td>
+            </tr>
+
+            x++;
+        }
+
+    </tbody>
+</table>
+
+
+@*<div class="row" hidden>
+    @{
+        var PaginatedModel = Model;
+
+        string prevDisabled = !PaginatedModel.HasPreviousPage ? "disabled" : "";
+
+        string nextDisabled = !PaginatedModel.HasNextPage ? "disabled" : "";
+    }
+    <ul class="pagination">
+        <li>
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData[" CurrentSortOrder"]"
+               asp-route-page="@(PaginatedModel.PageIndex - 1)"
+               asp-route-currentFilter="@ViewData[" FilterParam"]">
+                Prev
+            </a>
+        </li>
+        @for (var i = 1; i <= PaginatedModel.TotalPages; i++)
+        {
+        @if (PaginatedModel.PageIndex == i)
+
+            {
+        <li class="active">
+            <a asp-action="Index"
+               asp-route-sortOrder='@ViewData["CurrentSortOrder"]'
+               asp-route-page="@i"
+               asp-route-currentFilter='@ViewData["currentFilter"]'>
+                @i
+
+            </a>
+        </li>
+            }
+
+            else
+            {
+        <li class="">
+            <a asp-action="Index"
+               asp-route-sortOrder='@ViewData["CurrentSortOrder"]'
+               asp-route-page="@i"
+               asp-route-currentFilter='@ViewData["currentFilter"]'>@i</a>
+        </li>
+            }
+        }
+
+        <li class="">
+            <a asp-action="Index"
+               asp-route-sortOrder='@ViewData["CurrentSortOrder"]'
+               asp-route-page="@(PaginatedModel.PageIndex + 1)"
+               asp-route-currentFilter='@ViewData["currentFilter"]'>
+                next
+            </a>
+        </li>
+    </ul>
+
+</div>*@

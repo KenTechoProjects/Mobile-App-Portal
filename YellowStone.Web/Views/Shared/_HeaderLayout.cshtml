@@ -1,0 +1,50 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+
+
+<img src="~/img/fbn-logo.png" class="fdl-logo">
+<p class="logo-tag">Profile Management Dashboard</p>
+<div class="staff-blk">
+    <ul class="navi-items">
+        <li class="faq-nav">
+            @*<a asp-controller="FAQ" asp-action="ViewFaq">
+                <p class="faq-text">FAQ</p>
+                <img src="~/img/faq.png" class="faq-icon" />
+            </a>*@
+
+            <a id="FaqLink" data-toggle="modal" data-target="#FaqModal" href="#">
+                <p class="faq-text">FAQ</p>
+                <img src="~/img/faq.png" class="faq-icon" />
+            </a>
+        </li>
+
+
+
+        <li class="profile-box">
+            <img src="~/img/stafficon.png" class="staff-icon">
+            <div class="staff-details">
+                <p id="staffid">@Model.PageBaseClass.User?.StaffId?.ToUpper()</p>
+
+                <p id="lastlog">
+                    <span style="font-weight:500"> @Model.PageBaseClass.User.StaffBranchCode | @Model.PageBaseClass?.User?.Role?.Name</span>
+                    <br />
+                    @if (Model.PageBaseClass.User.LastLoginDate != null)
+                {
+                    <span> Last Login: @string.Format("{0:dd MMMM yyyy hh:mm}", @Model.PageBaseClass?.User?.LastLoginDate) </span>
+                }else{
+
+                    <span> Last Login: N/A </span>
+
+                    }
+
+                </p>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <ul class="sub-menu" style=" border-radius:5px;">
+                <li style="margin-left:10px;">
+                    <a asp-controller="Account" asp-action="LogOut">Logout</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+</div>

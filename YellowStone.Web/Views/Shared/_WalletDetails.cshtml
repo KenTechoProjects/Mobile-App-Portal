@@ -1,0 +1,102 @@
+﻿@model YellowStone.Web.ViewModels.WalletViewModel
+@using Microsoft.Extensions.Options
+@using YellowStone.Services
+@using YellowStone.Services.WalletService
+@inject IOptions<SystemSettings> options
+@inject IOptions<WalletServiceSettings> walletOptions
+@inject YellowStone.Services.IAppConfig appConfig
+
+@if (Model != null && Model.WalletInfoViewModel.IsSuccessful)
+{
+    <input type="hidden" value="@(Guid.NewGuid().ToString().Replace("-", ""))" id="transactionReference" />
+    <input type="hidden" value="@walletOptions.Value.Currency" id="currency" />
+    <input type="hidden" value="@Model.WalletInfoViewModel.WalletId" id="walletId" />
+
+    <div class="card">
+        <h5 class="card-header">Wallet Information</h5>
+        <div class="card-body">
+            <form>
+                <div class="form-group row">
+                    <label for="wallet-id" class="col-sm-6 col-form-label">Wallet ID</label>
+                    <div class="col-6">
+                        <input type="text" readonly class="form-control-plaintext" id="wallet-id" value="@Model.WalletInfoViewModel.WalletId" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="wallet-account-name" class="col-sm-6 col-form-label">Account Name</label>
+                    <div class="col-6">
+                        <input type="text" readonly class="form-control-plaintext" id="wallet-account-name" value="@Model.WalletInfoViewModel.AccountName" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="wallet-phonenumber" class="col-sm-6 col-form-label">Phone Number</label>
+                    <div class="col-6">
+                        <input type="text" readonly class="form-control-plaintext" value="@Model.WalletInfoViewModel.WalletId" id="wallet-phonenumber" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="wallet-email" class="col-sm-6 col-form-label">Email Address</label>
+                    <div class="col-6">
+                        <input type="text" readonly class="form-control-plaintext" value="@Model.WalletInfoViewModel.Email" id="wallet-email" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="wallet-type" class="col-sm-6 col-form-label">Wallet Type</label>
+                    <div class="col-6">
+                        <input type="text" readonly class="form-control-plaintext" value="@Model.WalletInfoViewModel.WalletType" id="wallet-type" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-6">
+                    </div>
+                </div>
+            </form>
+            <br />
+            <a href="#" id="btn-add-account" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal">Add Account</a>
+        </div>
+    </div>
+   
+}
+
+<script>
+    $(document).ready(() => {
+
+        var isSuccessful = '@Model.WalletInfoViewModel.IsSuccessful';
+
+        if (isSuccessful != 'True') {
+            Notify("Could not find wallet");
+        } else {
+              GetLinkingHistory($('#wallet-id').val());
+        }
+    });
+
+    
+</script>

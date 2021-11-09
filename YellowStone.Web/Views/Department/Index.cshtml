@@ -1,0 +1,302 @@
+﻿@model YellowStone.Web.ViewModels.DepartmentViewModel
+@using YellowStone.Models
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="main-body" style="margin-left:0px;">
+    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateDepartment")).Succeeded || ViewBag.user.IsAdmin)
+    {
+        <div class="bordered-div">
+            <div class="head-title-box">
+                <p>
+                    @*<button type="button" class="btn-details" style="color:white" onclick="clearCachedRoles();">Clear Roles</button>*@
+                    Create Department
+                </p>
+            </div>
+
+            <div class="row">
+                <div id="DepartmentRoleContainer" class="col-lg-6" style="margin-top:10px;">
+                    @await Html.PartialAsync("_Create", Model.Department)
+                </div>
+            </div>
+
+        </div>
+    }
+
+    <div class="bordered-div2">
+        @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateDepartment")).Succeeded ||
+  (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveDepartments")).Succeeded || ViewBag.user.IsAdmin)
+        {
+            <div id="DepartmentContainer">
+                @await Html.PartialAsync("_Index", Model.DepartmentList)
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="modal fade" id="ViewUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="ViewUserContainer">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="BtnViewUsers" class="btn-details" data-toggle="modal" data-target="#UserListModal" style="color:white; display:none"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+     var baseUrl = '@appConfig.BasePath';
+     var timeoutUrl = "@Url.Content("~/Account/Login")";
+    var table = $('#wdb-table').DataTable({
+        "bProcessing": true,
+        "pageLength": 10,
+        "bFilter": true,
+        "bInfo": true,
+        scrolly: 400,
+        lengthMenu: [
+            [10, 25, 50, 100, 500, -1],
+            ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+        ]
+    });
+
+
+    function saveRole(RoleID, type1) {
+
+        if (RoleID == 0)
+            RoleID = document.getElementById('RoleID').value;
+
+        if (RoleID != '- Please select a Role -') {
+            document.getElementById("overlay").style.display = 'block';
+            var url = baseUrl + "/Department/RoleDetail?RoleID=" + RoleID + "&Type=" + type1;
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response) {
+                $("#RoleContainer").html(response);
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function () {
+                    alert('Kindly verify you are not inputting a duplicate.');
+                    document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+    function UpdateDepartment(DepartmentID, actionType) {
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/UpdateDepartmentStatus?departmentId=" + DepartmentID + "&actionType=" + actionType;
+            var message = "";
+            if (actionType == '@ActionTypes.Approve.ToString()') {
+                message = "Are you sure you want to approve department?";
+            } else if (actionType == '@ActionTypes.Reject.ToString()') {
+                message = "Are you sure you want to reject department?";
+            }
+            $.confirm({
+                title: '',
+                content: message,
+                buttons: {
+                    ok: {
+                        text: "ok",
+                        btnClass: 'btn-primary',
+                        keys: ['enter'],
+                        action: function () {
+                            window.location = url;
+                        }
+                    },
+                    cancel: function () {
+
+                    }
+                }
+            });
+        }
+
+        return false;
+    }
+
+
+     function departmentStatus(DepartmentID, updateType) {
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/UpdateDepartmentStatus?departmentId=" + DepartmentID + "&updateType=" + updateType;
+            var message = "";
+            if (updateType == "A") {
+                message = "Are you sure you want to approve department?";
+            } else if (updateType == "R") {
+                message = "Are you sure you want to reject department?";
+            }
+            $.confirm({
+                title: '',
+                content: message,
+                buttons: {
+                    ok: {
+                        text: "ok",
+                        btnClass: 'btn-primary',
+                        keys: ['enter'],
+                        action: function () {
+                            window.location = url;
+                        }
+                    },
+                    cancel: function () {
+
+                    }
+                }
+            });
+        }
+        return false;
+    }
+
+    function editDepartment(DepartmentID) {
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/Edit?DepartmentID=" + DepartmentID;
+            document.getElementById("overlay").style.display = 'block';
+
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response) {
+                $("#DepartmentRoleContainer").html(response);
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (error) {
+                    alert('An error occurred, please try again later: ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+
+    function viewRoles(DepartmentID) {
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/ViewRoles?DepartmentID=" + DepartmentID;
+            document.getElementById("overlay").style.display = 'block';
+
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response) {
+                $("#ViewRoleContainer").html(response);
+                document.getElementById('BtnViewRoles').click();
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (error) {
+                    alert('An error occurred, please try again later: ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+    function viewUsers(DepartmentID) {
+
+        $("#ViewUserModal").modal();
+
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/ViewUsers?DepartmentID=" + DepartmentID;
+            document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response) {
+                $("#ViewUserContainer").html(response);
+                document.getElementById('BtnViewUsers').click();
+                document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    if (error == "Unauthorized") {
+
+                    window.location.href = timeoutUrl;
+                }
+                else
+                {
+                    alert('An error occurred, please try again later : ' + error);
+                    document.getElementById("overlay").style.display = 'none';
+                 }
+                });
+        }
+
+        return false;
+    }
+
+    function viewResources(RoleID) {
+
+        if (RoleID > 0) {
+            var url = baseUrl + "/Role/ViewResources?RoleID=" + RoleID;
+            document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response) {
+                $("#ViewResourceContainer").html(response);
+                document.getElementById('BtnViewResources').click();
+                document.getElementById("overlay").style.display = 'none';
+            })
+            .fail(function (error) {
+                alert('An error occurred, please try again later:' + error);
+                document.getElementById("overlay").style.display = 'none';
+            });
+        }
+
+        return false;
+    }
+
+    function clearCachedRoles() {
+        var url = baseUrl + "/Department/ClearCachedRoles";
+        document.getElementById("overlay").style.display = 'block';
+        $.ajax({
+            cache: false,
+            url: url
+        }).done(function (response, status, jqxhr) {
+
+            $("#RoleContainer").html(response);
+            document.getElementById('Name').value = '';
+            document.getElementById('DepartmentID').value = '';
+            document.getElementById("overlay").style.display = 'none';
+
+        })
+            .fail(function (jqxhr, status, error) {
+                alert('An error occurred, please try again later : ' + error);
+                document.getElementById("overlay").style.display = 'none';
+            });
+        return false;
+    }
+</script>
+
+
+
+

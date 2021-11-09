@@ -1,0 +1,18 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var imgPath = ViewBag.Imagepath;
+
+    if (!string.IsNullOrEmpty(imgPath))
+    {
+        <img src="@imgPath" alt="No document" id="imageUrl" height="500" width="500" />
+    }
+    else
+    {
+        <img src="" alt="No document" id="imageUrl" height="500" width="500" />
+    }
+}
+
+
+@*_DocumentPartialView.cshtml*@

@@ -1,0 +1,71 @@
+﻿@using YellowStone.Models.Enums
+@using YellowStone.Models
+@model List<Department>
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+<div class="row">
+
+</div>
+<table id="wdb-table" class="table table-striped table-condensed">
+    <thead class="head-title-box">
+        <tr style="color:#ffffff">
+            <td>SN</td>
+            <th class="left">Name</th>
+            <th class="left">Date Created</th>
+            <th class="left">Status</th>
+            <th class="left"></th>
+            <th class="right"></th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            var x = 1;
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @x
+                    </td>
+                    <td class="left">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+
+                    <td class="left">
+                        @item.CreatedDate
+                    </td>
+                    <td class="left">
+                        @item.Status.GetDescription()
+                    </td>
+                    <td class="left">
+                        @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateDepartment")).Succeeded || ViewBag.user.IsAdmin)
+                        {
+                            @Html.ActionLink("Edit", "Index", "Department", new { DepartmentId = item.Id }, new { @class = "btn btn-sm btn-outline-dark" })
+                        }
+                        else if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveDepartments")).Succeeded || ViewBag.user.IsAdmin)
+                        {
+                            if (item.Status == RequestStatus.Pending)
+                            {
+                                <a href="#" class="btn btn-sm btn-outline-success" onclick="return UpdateDepartment('@item.Id','@ActionTypes.Approve.ToString()');">Approve</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger" onclick="return UpdateDepartment('@item.Id','@ActionTypes.Reject.ToString()');">Reject</a>
+                            }
+                        }
+                    </td>
+
+                    <td class="right">
+                        @if (item.Status != RequestStatus.Rejected)
+                        {
+                            @Html.ActionLink("View Users", null, null, null, new { onclick = "return viewUsers(" + item.Id + ");", @class = "btn btn-sm btn-outline-dark" })
+                        }
+                    </td>
+
+                </tr>
+                x++;
+            }
+
+        }
+    </tbody>
+</table>

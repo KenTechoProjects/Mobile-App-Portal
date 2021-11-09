@@ -1,0 +1,211 @@
+﻿
+@using YellowStone.Models.Enums
+@model YellowStone.Web.ViewModels.CustomerInfoViewModel
+
+
+
+@if (Model.IsSuccessful)
+{
+    <div class="row" style="padding:20px 70px 20px 70px;">
+
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Name :  </label>
+                    <label name="lblName" id="lblName"> @Model.Name </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Date Enrolled : </label>
+                    <label name="lblDateEnrolled" id="lblDateEnrolled"> @Model.DateEnrolled</label>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">CIF : </label>
+                    <label name="lblCIF" id="lblCIF"> @Model.CustomerId </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Phone Number : </label>
+                    <label name="lblPhoneNumber" id="lblPhoneNumber"> @Model.PhoneNumber </label>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Email : </label>
+                    <label name="lblEmail" id="lblEmail"> @Model.Email </label>
+                </div>
+                <div class="col-lg-6 ">
+                    <label style="font-weight:700;">Account Active : </label>
+                    <label name="lblAccountStatus" id="lblAccountStatus"> @Model.ProfileStatus </label>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+
+                @if (Model.customerManagementViewModel.RequestType != RequestTypes.ActivateDevice && Model.customerManagementViewModel.RequestType != RequestTypes.DeactivateDevice && Model.customerManagementViewModel.RequestType != RequestTypes.ReleaseDevice)
+                {
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Account Number : </label>
+                        <label name="lblAccountNumber" id="lblAccountNumber"> @Model.AccountNumber </label>
+                    </div>
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Reason : </label>
+                        <label name="lblPhoneNumber" id="lblPhoneNumber"> @Model.customerManagementViewModel.Reason.GetDescription()</label>
+                    </div>
+                }
+
+            </div>
+            <br />
+            @if (Model.customerManagementViewModel.RequestType != RequestTypes.ActivateDevice && Model.customerManagementViewModel.RequestType != RequestTypes.DeactivateDevice && Model.customerManagementViewModel.RequestType != RequestTypes.ReleaseDevice)
+            {
+                <div class="row">
+
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Request Type : </label>
+                        <label name="lblPhoneNumber" id="lblPhoneNumber"> @Model.customerManagementViewModel.RequestType.GetDescription()</label>
+                    </div>
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Calling Phone : </label>
+                        <label name="lblCallingPhone" id="lblCallingPhone"> @Model.customerManagementViewModel.CallingPhone</label>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Device ID : </label>
+                        <label name="lblDeviceID" id="lblDeviceID"> @Model.customerManagementViewModel.DeviceId</label>
+                    </div>
+                    <div class="col-lg-6 ">
+                        <label style="font-weight:700;">Model : </label>
+                        <label name="lblCallingPhone" id="lblCallingPhone"> @Model.customerManagementViewModel.DeviceModel</label>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-12">
+
+            @if (Model.CustomerActivitiesViewModel.Any())
+            {
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <p style="font-weight:800">Recent Activities</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-10" style="border:solid;border-radius:10px">
+                        <table id="tblUserActivities" class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Activity</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.CustomerActivitiesViewModel)
+                                {
+                                    <tr>
+                                        <td>@item.ActivityDate</td>
+                                        <td>@item.Activity</td>
+                                        <td>@item.Time</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+    <br />
+    <div class="row">
+
+        @if (Model.CustomerActivitiesViewModel.Any())
+        {
+            <div class="col-lg-12 ">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <p style="font-weight:800">Recent Transactions</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-10" style="border:solid;border-radius:10px">
+                        <table id="tblds" class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Source</th>
+                                    <th>Transfer Type</th>
+                                    <th>Destination</th>
+                                    <th>Currency</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.TransactionsViewModel)
+                                {
+                                    <tr>
+                                        <td>@item.Date</td>
+                                        <td>@item.SourceAccount </td>
+                                        <td>@item.TransactionType</td>
+                                        <td>@item.DestinationAccount</td>
+                                        <td>@item.Currency</td>
+                                        <td>@item.Value</td>
+                                        <td>@item.Status</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        }
+        </div>
+            
+        }
+        else
+        {
+    <div class="row">
+        <div class="col-lg-12 text-center">
+
+            <label style="font-weight:500; color:red">Could not find profile</label>
+
+        </div>
+    </div>
+
+}
+
+<script type="text/javascript">
+    $(document).ready(() => {
+
+ var isSuccessful = '@Model.IsSuccessful';
+
+    if (isSuccessful != 'True') {
+        $("#btnProceed").prop("disabled", true);
+        $("#tabs").hide();
+       // alert(isSuccessful);
+
+    } else {
+        $("#btnProceed").prop("disabled", false);
+        $('#hdfAccountName').val('@Model.Name');
+        $("#tabs").show();
+    }
+    })
+
+</script>

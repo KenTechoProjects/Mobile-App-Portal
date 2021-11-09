@@ -1,0 +1,32 @@
+﻿@model YellowStone.Models.Department
+@using YellowStone.Models
+
+<form asp-controller="Department" asp-action="Create">
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <br />
+	<div class="row form-group" id="dvDeptId" style="display:none">
+		<label asp-for="Id" class="col-sm-4 col-form-label">ID : </label>
+		<div class="col-sm-8">
+			<input asp-for="Id" class="form-control" placeholder="0" readonly />
+			<span asp-validation-for="Id" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="row form-group">
+		<label asp-for="Name" class="col-sm-2 col-form-label">Name : </label>
+		<div class="col-sm-6">
+			<input asp-for="Name" class="form-control" maxlength="50" placeholder="Department Name" required />
+		</div>
+        <div class="col-sm-4"></div>
+	</div>
+    <br />
+    <div class="row form-group">
+        <label class="col-sm-2 col-form-label"> </label>
+        <div class="col-sm-4" id="ResourceContainer" style="white-space:nowrap">
+            <button type="submit" class="btn btn-save" style="margin-left:0px; margin-top:0px;">Save</button>
+        </div>
+        <div class="col-sm-6"></div>
+
+    </div>
+
+</form>

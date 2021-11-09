@@ -1,0 +1,65 @@
+﻿@model YellowStone.Models.User
+@using YellowStone.Models;
+
+    <form asp-action="Edit" asp-controller="User">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row form-group" style="margin-top:10px;">
+            <div class="col-sm-12">
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <p style="padding-left:5px; color:red;">@ViewBag.ErrorMessage</p>
+                }
+            </div>
+        </div>
+        <div class="row form-group">
+            <label asp-for="StaffId" class="col-sm-3 col-form-label">Staff Id:</label>
+            <div class="col-sm-8">
+                @*<input asp-for="StaffId" class="form-control" placeholder="SN Number" onblur="fetchStaffDetails(@Model.StaffId);" id="StaffId" />*@
+                <input asp-for="StaffId" class="form-control" placeholder="SN Number" id="StaffId" readonly />
+                <span asp-validation-for="StaffId" class="text-danger" id="staffIdSpan"></span>
+            </div>
+            <img src="~/img/rolling.gif" id="rollinggif" hidden />
+        </div>
+        <input asp-for="Status" class="form-control" id="Status" type="hidden" />
+
+        <div class="row form-group">
+            <label asp-for="Email" class="col-sm-3 col-form-label">Email Address:</label>
+            <div class="col-sm-8">
+                <input asp-for="Email" class="form-control" placeholder="email address" id="Email" readonly />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <label asp-for="Name" class="col-sm-3 col-form-label">Name:</label>
+            <div class="col-sm-8">
+                <input asp-for="Name" class="form-control" placeholder="Staff Name" readonly />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <label asp-for="StaffAdDepartment" class="col-sm-3 col-form-label">Staff Department:</label>
+            <div class="col-sm-8">
+                <input asp-for="StaffAdDepartment" class="form-control" placeholder="Staff Department" readonly />
+                <span asp-validation-for="StaffAdDepartment" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <label class="col-sm-3 col-form-label">Role:</label>
+            <div class="col-sm-8">
+                <select id="D" asp-for="RoleId" name="RoleId" asp-items="@(new SelectList(ViewBag.Roles, "Id", "Name") )" class="form-control" required onchange="fetchRoles();"><option>- Please select a Role -</option></select>
+            </div>
+        </div>
+
+        <br />
+        <div class="row form-group">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-8">
+                <button type="submit" class="btn btn-save" style="margin-left:0px; margin-top:0px;">Update</button>
+            </div>
+        </div>
+
+    </form>

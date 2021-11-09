@@ -1,0 +1,65 @@
+﻿
+@model IEnumerable<YellowStone.Web.ViewModels.CustomerRequestHistory>
+
+<div class="card">
+    <h5 class="card-header">Linking History</h5>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <table class="table table-responsive-lg table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            Activity
+                        </th>
+                        <th>
+                            AccountNumber
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                        <th>
+                            Branch
+                        </th>
+                        <th>
+                            Initiated By
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Date)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Activity)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AccountNumber)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Time)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AccountBranchCode)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.InitiatedBy)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <label style="font-weight:500;">No Onboarding History</label>
+        }
+    </div>
+</div>
+

@@ -1,0 +1,165 @@
+﻿@model YellowStone.Web.ViewModels.UserViewModel
+@using YellowStone.Models
+@inject YellowStone.Services.IAppConfig appConfig;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@await Html.PartialAsync("_ViewDepartmentSummaries", Model.DepartmentSummaries)
+
+<div class="bordered-div2">
+    <p id="DepartmentName" style="color:#455a64; font-weight:500; text-transform:uppercase"></p>
+    <div id="UserContainer">
+        @await Html.PartialAsync("_Index", Model.UserList)
+    </div>
+
+</div>
+
+<!-- User Modal List -->
+<div class="modal fade" id="UserListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="CreateUserContainer">
+                        @await Html.PartialAsync("_CreateUser", Model.User)
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="BtnViewUsers" class="btn-details" data-toggle="modal" data-target="#UserListModal" style="color:white; display:none"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="EditUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="EditUserContainer">
+                        @*  @await Html.PartialAsync("_Edit", Model.User)*@
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                @* <button type="button" id="BtnViewUsers" class="btn-details" data-toggle="modal" data-target="#UserListModal" style="color:white; display:none"></button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="ViewUserContainer">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="BtnViewUsers" class="btn-details" data-toggle="modal" data-target="#UserListModal" style="color:white; display:none"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var baseUrl = '@appConfig.BasePath';
+
+    $(document).ready(function () {
+
+        var table = $('#wdb-table').DataTable({
+            "bProcessing": true,
+            "pageLength": 10,
+            "bFilter": true,
+            "bInfo": true,
+            scrolly: 400,
+            lengthMenu: [
+                [10, 25, 50, 100, 500, -1],
+                ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+            ]
+        });
+
+
+    });
+
+    function loadCreateUser() {
+
+        var url = baseUrl + "/User/Create";
+        document.getElementById("overlay").style.display = 'block';
+
+
+        $.ajax({
+            cache: false,
+            url: url
+        }).done(function (response, status, jqxhr) {
+            $("#CreateUserContainer").html(response);
+            document.getElementById('BtnViewRoles').click();
+            document.getElementById("overlay").style.display = 'none';
+        }).fail(function (jqxhr, status, error) {
+            alert('An error occurred, please try again later: ' + error);
+            document.getElementById("overlay").style.display = 'none';
+        });
+        return false;
+    }
+
+
+
+    function viewUsers(DepartmentID) {
+        if (DepartmentID > 0) {
+            var url = baseUrl + "/Department/ViewUsers?DepartmentID=" + DepartmentID;
+            //document.getElementById("overlay").style.display = 'block';
+
+            $.ajax({
+                cache: false,
+                url: url
+            }).done(function (response, status, jqxhr) {
+                $("#ViewUserContainer").html(response);
+                $("#ViewUserModal").modal("show");
+
+                //document.getElementById("overlay").style.display = 'none';
+            })
+                .fail(function (jqxhr, status, error) {
+                    alert('noAn error occurred, please try again later : ' + error);
+                    //document.getElementById("overlay").style.display = 'none';
+                });
+        }
+
+        return false;
+    }
+
+    $('.modal').on('show.bs.modal', function () {
+        $('.modal').not($(this)).each(function () {
+            $(this).modal('hide');
+        });
+    });
+</script>

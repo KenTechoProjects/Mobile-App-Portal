@@ -1,0 +1,408 @@
+﻿@model YellowStone.Web.ViewModels.OnboardingViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig;
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/css/notify.css" rel="stylesheet" />
+<div class="container">
+
+    <input type="hidden" id="hdfCurrentUser" value="@ViewBag.CurrentUser" />
+    <input type="hidden" id="hdfAccountNumber" value="@ViewBag.AccountNumber" />
+    <input type="hidden" id="hdfAccountName" />
+    <input type="hidden" id="hdfBranchCode" />
+    <input type="hidden" id="hdfId" value="@ViewBag.Id" />
+    <input type="hidden" id="hdfReInitiated" value="@ViewBag.ReInitiated" />
+
+    <div id="view-1" class="main-body" style="margin-left:4px;">
+        <br />
+        <div class="row" style="margin:10px;">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6">
+                <div class="container">
+                    <div class="input-group">
+                        <input type="text" class="form-control cus-search" placeholder="Search : Account Number" id="txtSearch">
+                        <span class="input-group-btn">
+                            <button id="btnSearch" class="btn btn-search btn-primary" type="button"><i class="fa fa-search fa-fw"></i> Search</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3"></div>
+        </div>
+        <br />
+        <div id="divAccountDetails"></div>
+        <br />
+        <div id="divOnboardingHistory"></div>
+        <br />
+        <div id="divComments"></div>
+    </div>
+
+
+    <div id="view-2">
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-lg-12 text-center" id="fileupload">
+                <span style="border-style:dashed;border-radius:5px;padding:20px;margin:40px; height:60px">
+                    <img src="~/img/PixleIcon.svg" />
+                    <input type="file" id="fileAttachment" value="Click here to upload document" />
+
+                </span>
+                <br />
+                <br />
+                <p>Supported file types: pdf, jpg and jpeg only</p>
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <div id="divAttachments">
+
+        </div>
+        <br />
+        <br />
+
+        <div class="divReInitiated">
+            <div class="row container">
+                <div class="col-4"></div>
+                <div class="col-4">
+                    <label>Reason for re-initiating :</label>
+
+                    <select id="ddlReason" class="form-control">
+                        <option value="0">--Select--</option>
+                        <option value="1">Failed to recieve OTP</option>
+                        <option value="2">Failed to send OTP</option>
+                        <option value="3">OTP expired</option>
+                        <option value="4">Other</option>
+                    </select>
+                </div>
+                <div class="col-3 divOther">
+                    <label>Please specify :</label>
+                    <input type="text" id="txtReason" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+
+        <br />
+        <br />
+    </div>
+
+    <div id="view-3">
+        <br />
+        <br />
+        <div class="row text-center">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6">
+                <h5>Please confirm details before submiting</h5>
+            </div>
+            <div class="col-lg-3"></div>
+
+        </div>
+        <div id="divDataPreview"></div>
+        <div id="divUploadPreview"></div>
+
+        <br />
+        <div class="divReInitiated">
+            <div class="row container">
+                <div class="col-4"></div>
+                <div class="col-4">
+                    <label>Reason for re-initiating :</label>
+                    <label id="lblReason">  </label>
+
+                </div>
+                <div class="col-3"></div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <br />
+    <br />
+
+
+    <input type="hidden" id="viewState" />
+    <div class="row" id="divButtons">
+        <div class="col-lg-4">
+
+        </div>
+        <div class="col-lg-4 text-center">
+            <input type="button" id="btnBack" value="Back" class="btn btn-default" /> &nbsp;&nbsp;
+            <input type="submit" id="btnProceed" value="Proceed" class="btn btn-primary" />
+        </div>
+        <div class="col-lg-4">
+
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+    var reInitiated;
+
+    $(document).ready(function () {
+        var acctNumber = $("#hdfAccountNumber").val();
+        if (acctNumber) {
+            $('#txtSearch').val(acctNumber);
+            $('#btnSearch').click();
+        }
+
+        reInitiated = $('#hdfReInitiated').val();
+
+        DefaultView();
+
+        if (reInitiated == 'ReInitiated') {
+            $(".divReInitiated").show();
+        }
+
+    });
+
+
+
+    $('#btnSearch').click(() => {
+        var accountNumber = $('#txtSearch').val();
+        $("#hdfAccountNumber").val(accountNumber);
+        GetAccountDetails(accountNumber);
+    });
+
+    $("#btnProceed").click(() => {
+      var viewState = $("#viewState").val();
+        if (viewState == '1') {
+            InitializeView1();
+            GetAttachments($("#hdfAccountNumber").val());
+        }
+        else if (viewState == '2') {
+            InitializeView2();
+        }
+        else if (viewState == '3') {
+            var accountNumber = $("#hdfAccountNumber").val();
+            var accountName = $("#hdfAccountName").val();
+            var branchCode = $("#hdfBranchCode").val();
+              Dialog("Are you sure you want to submit this request?", function () {
+              SubmitRequest(accountNumber, accountName, branchCode);
+            });
+        }
+
+    });
+
+    $('#ddlReason').change(() => {
+        if ($('#ddlReason').val() == '4') {
+            $('.divOther').show();
+        }
+        else
+        {
+            $('#lblReason').text($('#ddlReason option:selected').text());
+            $('.divOther').hide();
+        }
+    });
+    $('#txtReason').change(() => {
+
+        $('#lblReason').text($('#txtReason').val());
+    });
+
+    $("#btnBack").click(() => {
+        var currentState = $("#viewState").val();
+        var previousState = currentState - 1;
+        var currentView = `#view-${currentState}`;
+        var previousView = `#view-${previousState}`;
+
+        $('.fordelete').show();
+
+        $(currentView).hide();
+        $(previousView).show();
+        $("#viewState").val(previousState);
+        $("#btnProceed").val("Proceed");
+        $("#btnProceed").prop("disabled", false); // incase the partial view had already disbaled it
+
+        if (previousState == 1) {
+            $("#btnBack").hide();
+        }
+    });
+
+    function GetAccountDetails(accountNumber) {
+       var url = baseUrl + '/Onboarding/GetAccountDetails?accountNumber=' + accountNumber;
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divAccountDetails").html(response);
+            $("#divDataPreview").html(response);
+            GetOnboardingHistory(accountNumber);
+        });
+    }
+
+     function GetAttachments(accountNumber) {
+         var url = baseUrl + '/Onboarding/GetAttachments?accountNumber=' + accountNumber;
+         AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+             $("#divAttachments").html(response);
+             $("#divUploadPreview").html(response);
+         });
+     }
+
+    function SubmitRequest(accountNumber, accountName, branchCode) {
+        var url = baseUrl + '/Onboarding/InitiateOnboarding';
+        var request = { 'AccountNumber': accountNumber, 'AccountName':accountName, 'BranchCode': branchCode}
+
+        if (reInitiated) {
+            request.Id = $('#hdfId').val();
+        }
+
+        var comment = $("#lblReason").text();
+        if (comment) {
+            request.Comment = comment;
+        }
+        $("#btnProceed").prop('disabled', true);
+
+         AjaxRequest(url, 'POST', request,timeoutUrl,  function () {
+             DialogOkOnly("Onboarding has been initiated successfully. Awaiting approval", () => {
+                 window.location = '@Url.Content("~/Notifications")';
+             });
+         }, function (error) {
+            $("#btnProceed").prop('disabled', false);
+            $.alert(error)
+       });
+    }
+
+
+    function GetOnboardingHistory(accountNumber) {
+        var url = baseUrl + '/Onboarding/GetOnboardingRequests?accountNumber=' + accountNumber;
+         AjaxRequest(url, 'GET', null,timeoutUrl,  function (response) {
+             $("#divOnboardingHistory").html(response);
+             $("#divButtons").show();
+         });
+    }
+
+     function DeleteAttachment(id) {
+         var url = baseUrl + '/Onboarding/DeleteFile?id=' + id;
+          AjaxRequest(url, 'POST', null,timeoutUrl,  function () {
+            var accountNumber = $("#hdfAccountNumber").val();
+            GetAttachments(accountNumber);
+         });
+      }
+
+     function ViewAttachment(id) {
+        var url = baseUrl + "/Onboarding/GetFile?Id=" + id;
+        window.open(url, "_blank");
+
+    }
+
+
+    $("#fileAttachment").bind("change", function () {
+
+        var filename = this.files[0].name.toString();
+        var ind_ext = filename.indexOf('.');
+        var ext = filename.substring(ind_ext + 1, filename.length);
+        var allowedExt = ['pdf', 'jpeg', 'jpg'];
+
+        var detectExt = allowedExt.some(function (item, index, array) {
+            if (ext.toLowerCase() === item.toLowerCase()) { return true; }
+        });
+
+        if (detectExt) {
+
+            var currentUser = $("#hdfCurrentUser").val();
+            var fileData = new FormData();
+
+            var accountNumber = $("#hdfAccountNumber").val();
+
+            fileData.append(currentUser + "attachment", this.files[0]);
+            fileData.append(currentUser + "accountNumber", accountNumber);
+
+             $.ajax({
+                url: baseUrl + '/Onboarding/UploadFile',
+                beforeSend: function () {
+                   document.getElementById("overlay").style.display = 'block';
+                },
+                type: "POST",
+                async: true,
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+             }).done(function (result) {
+                 GetAttachments(accountNumber);
+                document.getElementById("overlay").style.display = 'none';
+
+            }).fail(function (jqxhr, status, error) {
+            if (error == 'Unauthorized') {
+               window.location.href = timeoutUrl;
+            } else {
+                    $.alert(jqxhr.responseText);
+                }
+            $("#fileAttachment").val('');
+            document.getElementById("overlay").style.display = 'none';
+        });
+        }
+        else {
+              $.alert("File format not supported");
+            $("#fileAttachment").val('');
+            return;
+        }
+
+    });
+
+
+    $("#txtSearch").on("keypress paste", function (e) {
+		var c = this.selectionStart, v = $(this).val();
+		if (e.type == "keypress")
+			var key = String.fromCharCode(!e.charCode ? e.which : e.charCode)
+		else
+			var key = e.originalEvent.clipboardData.getData('Text')
+		var val = v.substr(0, c) + key + v.substr(c, v.length)
+		if (!val.match(/^[\w\s]+$/) || val.match(/^[\w\s]+$/).toString() != val) {
+			e.preventDefault()
+			return false
+		}
+	});
+
+
+
+
+    function InitializeView2() {
+        var valid = true;
+        if (reInitiated == 'ReInitiated') {
+            var reasonValue = $("#ddlReason").val();
+            var otherReason = $('#txtReason').val();
+            if (reasonValue == '0' || (reasonValue == '4' && !otherReason)) {
+                valid = false;
+            }
+        }
+            if (valid) {
+                $("#view-1").hide();
+                $("#view-2").hide();
+                $("#view-3").show();
+                $("#btnBack").show();
+                $("#viewState").val('3');
+                $("#btnProceed").val("Submit");
+                $('.fordelete').hide();
+            } else {
+                Notify("Please select a reason");
+            }
+    }
+
+    function InitializeView1() {
+        $("#view-1").hide();
+        $("#view-2").show();
+        $("#view-3").hide();
+        $("#btnBack").show();
+        $("#viewState").val('2');
+        $('.fordelete').show();
+    }
+
+    function DefaultView() {
+        $("#view-1").show();
+        $("#view-2").hide();
+        $("#view-3").hide();
+        $("#btnBack").hide();
+        $("#divButtons").hide();
+        $(".divOther").hide();
+        $(".divReInitiated").hide();
+        $("#viewState").val('1');
+    }
+</script>

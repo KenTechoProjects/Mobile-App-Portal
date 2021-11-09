@@ -1,0 +1,131 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <UserSecretsId>8fdc38cf-0af4-446a-a162-50740c38db08</UserSecretsId>
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Archives\**" />
+    <Compile Remove="HttpClientService\**" />
+    <Compile Remove="Uploads\**" />
+    <Compile Remove="Views\AdminApproval\**" />
+    <Compile Remove="Views\Admin\**" />
+    <Compile Remove="Views\ContactApproval\**" />
+    <Compile Remove="Views\Contact\**" />
+    <Compile Remove="Views\Resource\**" />
+    <Content Remove="Archives\**" />
+    <Content Remove="HttpClientService\**" />
+    <Content Remove="Uploads\**" />
+    <Content Remove="Views\AdminApproval\**" />
+    <Content Remove="Views\Admin\**" />
+    <Content Remove="Views\ContactApproval\**" />
+    <Content Remove="Views\Contact\**" />
+    <Content Remove="Views\Resource\**" />
+    <EmbeddedResource Remove="Archives\**" />
+    <EmbeddedResource Remove="HttpClientService\**" />
+    <EmbeddedResource Remove="Uploads\**" />
+    <EmbeddedResource Remove="Views\AdminApproval\**" />
+    <EmbeddedResource Remove="Views\Admin\**" />
+    <EmbeddedResource Remove="Views\ContactApproval\**" />
+    <EmbeddedResource Remove="Views\Contact\**" />
+    <EmbeddedResource Remove="Views\Resource\**" />
+    <None Remove="Archives\**" />
+    <None Remove="HttpClientService\**" />
+    <None Remove="Uploads\**" />
+    <None Remove="Views\AdminApproval\**" />
+    <None Remove="Views\Admin\**" />
+    <None Remove="Views\ContactApproval\**" />
+    <None Remove="Views\Contact\**" />
+    <None Remove="Views\Resource\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Authorization\ContactApprovalAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\ContactInitiatorAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\LimitApprovalAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\LimitInitiatorAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\OnboardingApprovalAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\OnboardingInitiatorAuthorizationHandler.cs" />
+    <Compile Remove="Controllers\AdminApprovalController.cs" />
+    <Compile Remove="Controllers\ContactApprovalController.cs" />
+    <Compile Remove="Controllers\ContactController.cs" />
+    <Compile Remove="Controllers\OnboardingControllerOld.cs" />
+    <Compile Remove="Controllers\ResourceController.cs" />
+    <Compile Remove="ViewModels\AdminApprovalViewModel.cs" />
+    <Compile Remove="ViewModels\ContactApproveViewModel.cs" />
+    <Compile Remove="ViewModels\ContactViewModel.cs" />
+    <Compile Remove="ViewModels\ResourceViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Home\About.cshtml" />
+    <Content Remove="Views\Home\Contact.cshtml" />
+    <Content Remove="Views\Home\Privacy.cshtml" />
+    <Content Remove="Views\Home\Test.cshtml" />
+    <Content Remove="Views\Onboarding\ApproverView.cshtml" />
+    <Content Remove="Views\Onboarding\FAQ.cshtml" />
+    <Content Remove="Views\Onboarding\_CustomerHistorInfo.cshtml" />
+    <Content Remove="Views\Onboarding\_FAQ.cshtml" />
+    <Content Remove="Views\Onboarding\_Index.cshtml" />
+    <Content Remove="Views\Onboarding\_InitiatorNotification.cshtml" />
+    <Content Remove="Views\Onboarding\_OnboardingList.cshtml" />
+    <Content Remove="Views\Onboarding\_Transactions.cshtml" />
+    <Content Remove="Views\ProfileManagement\ApproverView.cshtml" />
+    <Content Remove="Views\ProfileManagement\Archives.cshtml" />
+    <Content Remove="Views\ProfileManagement\Notification.cshtml" />
+    <Content Remove="Views\ProfileManagement\_Archives.cshtml" />
+    <Content Remove="Views\ProfileManagement\_OnboardingList.cshtml" />
+    <Content Remove="Views\Shared\_Resources.cshtml" />
+    <Content Remove="Views\Shared\_RoleDropdown.cshtml" />
+    <Content Remove="Views\Shared\_ViewResources.cshtml" />
+    <Content Remove="Views\Shared\_ViewRoles.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Audit\Index.cshtml" />
+    <None Include="Views\Audit\_Index.cshtml" />
+    <None Include="Views\Role\Index.cshtml" />
+    <None Include="Views\Role\_Create.cshtml" />
+    <None Include="Views\Role\_Index.cshtml" />
+    <None Include="Views\User\Create.cshtml" />
+    <None Include="Views\User\Edit.cshtml" />
+    <None Include="Views\User\Index.cshtml" />
+    <None Include="Views\User\_CreateUser.cshtml" />
+    <None Include="Views\User\_Edit.cshtml" />
+    <None Include="Views\User\_Index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Core.Flash" Version="1.0.0" />
+    <PackageReference Include="jquery.datatables" Version="1.10.15" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0"><PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
+<Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
+</PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="2.2.11" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YellowStone.Models\YellowStone.Models.csproj" />
+    <ProjectReference Include="..\YellowStone.Repository\YellowStone.Repository.csproj" />
+    <ProjectReference Include="..\YellowStone.Services\YellowStone.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\DocumentReview\DocumentReviewList.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

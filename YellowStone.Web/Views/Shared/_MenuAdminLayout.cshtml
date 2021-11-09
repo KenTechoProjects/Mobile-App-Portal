@@ -1,0 +1,121 @@
+﻿@model YellowStone.Web.ViewModels.PageLayout
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+<div class="sidebar">
+    <nav class="sidebar-nav">
+
+        <ul class="nav">
+            @if (ViewBag.user.IsAdmin)
+            {
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Audit" asp-action="Index"><i class="nav-icon icon-puzzle"></i>View Audit Trail</a></li>
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Department" asp-action="Index"><i class="nav-icon icon-pencil"></i>Departments</a></li>
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Role" asp-action="Index"><i class="nav-icon icon-drop"></i>Roles</a></li>
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="User" asp-action="Index"><i class="nav-icon icon-puzzle"></i>Users</a></li>
+
+                @*<li class="nav-item"><a class="nav-link" is-active-route asp-controller="Limits" asp-action="Index"><i class="nav-icon icon-puzzle"></i>Limits</a></li>*@
+            }
+            else
+            {
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="DocumentReview" asp-action="DocumentReviewList"><i class="nav-icon icon-puzzle"></i>Document Review</a></li>
+                 @*<li class="nav-item">
+                    <a class="nav-link" is-active-route asp-controller="Notifications" asp-action="Index">
+                        <span>
+                            Notifications
+                            (@Model.PageBaseClass.NotificationCount)
+                        </span>
+                    </a>
+                </li>*@
+
+                if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateRoles")).Succeeded
+                           || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveRoles")).Succeeded)
+                {
+                    <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Role" asp-action="Index"><i class="nav-icon icon-drop"></i>Roles</a></li>
+                }
+                if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateDepartment")).Succeeded
+                          || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveDepartments")).Succeeded)
+                {
+                    <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Department" asp-action="Index"><i class="nav-icon icon-pencil"></i>Departments</a></li>
+                }
+
+                if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateUser")).Succeeded
+                          || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveUsers")).Succeeded)
+                {
+                    <li class="nav-item"><a class="nav-link" is-active-route asp-controller="User" asp-action="Index"><i class="nav-icon icon-puzzle"></i>Users</a></li>
+                }
+
+                @*if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateLimit")).Succeeded
+                     || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveLimit")).Succeeded)
+            {
+                <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Limits" asp-action="Index"><i class="nav-icon icon-puzzle"></i>Limits</a></li>
+
+            }*@
+
+                if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "SystemControl")).Succeeded)
+                {
+                    <li class="nav-item"><a class="nav-link" is-active-route asp-controller="Audit" asp-action="Index"><i class="nav-icon icon-puzzle"></i>View Audit Trail</a></li>
+                }
+
+                if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateAccountLinking")).Succeeded || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateProfileManagement")).Succeeded)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" is-active-route asp-controller="Notifications" asp-action="Index">
+                            <span>
+                                Notifications
+                                (@Model.PageBaseClass.NotificationCount)
+                            </span>
+                        </a>
+                    </li>
+
+                    if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateAccountLinking")).Succeeded)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" is-active-route asp-controller="Wallet" asp-action="Index">
+                                <span>Account Linking</span>
+                            </a>
+                        </li>
+                        @*<li class="nav-item"><a class="nav-link" is-active-route asp-controller="DocumentReview" asp-action="DocumentReviewList"><i class="nav-icon icon-puzzle"></i>Document Review 1</a></li>*@
+                    }
+
+                    if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "InitiateProfileManagement")).Succeeded)
+                    {
+
+                        <li class="nav-item">
+                            <a class="nav-link" is-active-route asp-controller="ProfileManagement" asp-action="Index">
+                                <span> Profile Management</span>
+                            </a>
+                        </li>
+
+                    }
+
+                    @*<li class="nav-item"><a class="nav-link" is-active-route asp-controller="DocumentReview" asp-action="DocumentReviewList"><i class="nav-icon icon-puzzle"></i>Document Review 2</a></li>*@
+
+                    <li class="nav-item">
+                        <a class="nav-link" is-active-route asp-controller="Archives" asp-action="Index">
+                            <span> Archives</span>
+                        </a>
+                    </li>
+
+
+                }
+
+
+
+                @*if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveAccountLinking")).Succeeded || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveProfileManagement")).Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" is-active-route asp-controller="Notifications" asp-action="Index">
+                        <span>
+                            Notifications
+                            (@Model.PageBaseClass.NotificationCount)
+                        </span>
+                    </a>
+                </li>
+
+            }*@
+
+            }
+
+        </ul>
+    </nav>
+</div>
+

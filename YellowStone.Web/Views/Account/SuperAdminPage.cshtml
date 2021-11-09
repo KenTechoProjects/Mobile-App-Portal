@@ -1,0 +1,80 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Whatsapp Dashboard">
+    <meta name="author" content="Digital Lab">
+    <title>Whatsapp::Login</title>
+    <!-- css-->
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+    <header class="fdl-login-header">
+        <img src="~/img/fbn-logo.png" class="fdl-logo">
+        <p class="logo-tag">Profile Management Dashboard</p>
+    </header>
+    <div class="wdb-login align-items-center">
+        <div class="justify-content-center">
+            <div class="row">
+                <div class="card text-white fdl-color pad-box">
+                    <div>
+                        <div class="feature">
+                            <p class="text-center">Features</p>
+                            <ul>
+                                <li>Lock and Unlock Customer profile</li>
+                                <li>View transaction on accounts</li>
+                                <li>Export reports</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="width: 355px;">
+                    <form asp-controller="Account" asp-action="SuperAdminPage">
+                        <div class="card-left">
+                            <p class="text-center">Please select role to continue</p>
+                            <label class="login-label" for="staffId"> Section </label>
+                            <div style="margin-bottom: 20px;">
+                                @*<img src="~/img/user.png" class="img-pos" style="width:37px">*@
+                                <select class="form-control" name="pageName" id="pageName">
+                                    <option value=""> Select Role </option>
+                                    <option value="Admin"> Admin Initiator </option>
+                                    <option value="Admin Approval"> Admin Approval </option>
+                                    <option value="First Contact"> First Contact Initiator </option>
+                                    <option value="First Contact Approval"> First Contact Approval </option>
+                                    <option value="System Control"> System Control </option>
+                                </select>
+                            </div>
+                            
+                            <div class="text-center">
+                                <label class="login-label" style="color:red">
+                                    @if (@ViewBag.ErrorMessage != null)
+                                    {
+                                        @ViewBag.ErrorMessage
+                                    }
+                                </label>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn fdl-color text-white" id="login-btn" type="submit">Continue</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

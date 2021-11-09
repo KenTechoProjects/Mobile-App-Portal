@@ -1,0 +1,27 @@
+﻿@model IEnumerable<YellowStone.Web.ViewModels.DepartmentSummary>
+
+<div class="row mg-50">
+
+
+    @foreach (var item in Model)
+    {
+
+        <div class="col-md-4">
+            <div class="user-box">
+                <p class="dep-name"><span>@item.Name</span></p>
+                <p class="user-count">@item.UserCount User(s)</p><hr id="hr-line">
+                <div class="view-btn">
+                  <a href="#" class="view-details" onclick="return viewUsers(@item.Id)">View Details<img class="arrow-right" src="~/img/arrow-right.png"></a>
+                </div>
+            </div>
+            <br />
+            <br />
+        </div>
+    }
+
+
+</div>
+
+<script>
+
+</script>

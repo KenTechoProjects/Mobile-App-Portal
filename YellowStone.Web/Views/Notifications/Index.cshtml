@@ -1,0 +1,304 @@
+﻿@model YellowStone.Web.ViewModels.OnboardingViewModel;
+@using Microsoft.AspNetCore.Authorization
+@using YellowStone.Models.Enums
+@inject IAuthorizationService AuthorizationService;
+@inject YellowStone.Services.IAppConfig appConfig;
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<script type="text/javascript">
+    var baseUrl = '@appConfig.BasePath';
+
+</script>
+
+
+<div class="main-body" style="margin-left:10px;">
+
+    <div class="row">
+        <p style="padding-right: 10px; padding-left:15px; font-size:20px;">
+            Requests
+        </p>
+    </div>
+
+    <div class="bordered-div2">
+        <div id="ContactContainer">
+            @await Html.PartialAsync("_RequestList", Model.OnboardingHistoryViewModel)
+        </div>
+    </div>
+
+</div>
+<input type="hidden" id="hdfId" />
+<input type="hidden" id="hdfRequestType" />
+
+<div class="modal fade" id="ViewUserModal" tabindex="-1" z-index="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#455a64; color: #ffffff">
+                <h5 class="modal-title" id="exampleModalLongTitle">Request Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color:white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-sm-12" id="ViewUserContainer">
+                        <div id="view-1">
+                            <div id="divDataPreview"></div>
+                            <div id="divUploadPreview"></div>
+                            <div id="divCustomerProfile"></div>
+                            <br />
+                            <div id="divComments"></div>
+                        </div>
+
+                        <br />
+                        <br />
+
+                        <input type="hidden" id="viewState" />
+                        @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveAccountLinking")).Succeeded || (await AuthorizationService.AuthorizeAsync(User, ViewBag.user, "ApproveProfileManagement")).Succeeded)
+                        {
+                            <div id="approvalControls">
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-4">
+                                        <label>Comment </label>
+                                    </div>
+                                    <div class="col-lg-4 text-center">
+                                        <textarea rows="5" cols="30" name="description" id="txtComment"></textarea>
+                                    </div>
+                                    @*<div class="col-lg-4">
+
+                                        </div>*@
+                                </div>
+
+                                <br />
+                                <br />
+                                <div class="row justify-content-center" id="divButtons">
+                                    @*<div class="col-lg-4">
+
+                                        </div>*@
+                                    <div class="col-lg-4 text-center">
+                                        <input type="button" id="btnReject" value="Reject" class="btn btn-default" /> &nbsp;&nbsp;
+                                        <input type="submit" id="btnApprove" value="Approve" class="btn btn-primary" />
+                                    </div>
+                                    @*<div class="col-lg-4">
+
+                                        </div>*@
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BtnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+     var table = $('#onboardingList').DataTable({
+        "bProcessing": true,
+        "pageLength": 10,
+        "bFilter": true,
+        "bInfo": true,
+        scrolly: 400,
+        lengthMenu: [
+            [10, 25, 50, 100, 500, -1],
+            ['10 records', '25 records', '50 records', '100 records', '500 records', 'Show all']
+        ]
+     });
+
+    var timeoutUrl = "@Url.Content("~/Account/Login")";
+
+
+
+    function ViewRequest(id,accountNumber, requestType, requestStatus) {
+
+        $('#hdfId').val(id);
+        $('#hdfRequestType').val(requestType);
+        $("#divDataPreview").html("");
+        $("#divUploadPreview").html("");
+        $("#divCustomerProfile").html("");
+        $("#divComments").html("");
+
+
+        if (requestStatus == '@RequestStatus.Pending')
+        {
+            $('#approvalControls').show();
+        }
+        else
+        {
+            $('#approvalControls').hide();
+        }
+
+        if (requestType == '@RequestTypes.Onboarding.ToString()') {
+
+            GetAccountDetails(accountNumber);
+        }
+        else if (requestType == '@RequestTypes.LinkAccount.ToString()')
+        {
+            GetLinkingDetails(id);
+        }
+        else
+        {
+            GetProfileDetails(id);
+        }
+         GetComments(id);
+    }
+
+    $('#btnApprove').click(() => {
+        $('#btnApprove').prop('disabled', true);
+        $('#btnReject').prop('disabled', true);
+        var id = $('#hdfId').val();
+        var requestType = $('#hdfRequestType').val();
+        var comment = $('#txtComment').val();
+        DialogCancel("Are you sure you want to approve this request?", function () {
+            SubmitRequest(id, comment, requestType);
+        },
+            function () {
+                 $('#btnApprove').prop('disabled', false);
+        $('#btnReject').prop('disabled', false);
+            }
+        );
+    });
+
+    $('#btnReject').click(() => {
+        var id = $('#hdfId').val();
+        var requestType = $('#hdfRequestType').val();
+         $('#btnApprove').prop('disabled', true);
+          $('#btnReject').prop('disabled', true);
+        var comment = $('#txtComment').val();
+        if (!comment) {
+            $.alert("Please enter a comment");
+             $('#btnApprove').prop('disabled', false);
+          $('#btnReject').prop('disabled', false);
+            return;
+        };
+        Dialog("Are you sure you want to reject this request?", function () {
+            RejectRequest(id, comment,requestType);
+        });
+    });
+
+     function GetAccountDetails(accountNumber) {
+         var url = baseUrl + '/Onboarding/GetAccountDetails?accountNumber=' + accountNumber;
+          document.getElementById("overlay").style.display = 'block';
+
+        AjaxRequestNoLoaders(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divDataPreview").html(response);
+            GetAttachments(accountNumber);
+
+             $('#ViewUserModal').modal();
+        });
+       }
+
+     function GetProfileDetails(id) {
+        var url = baseUrl + `/ProfileManagement/CustomerInfoById?Id=${id}&viewType=modal`;
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divCustomerProfile").html(response);
+             $('#ViewUserModal').modal();
+        });
+    }
+
+     function GetLinkingDetails(id) {
+        var url = baseUrl + `/Wallet/GetLinkAccountRequestById?Id=${id}`;
+        AjaxRequest(url, 'GET', null, timeoutUrl, function (response) {
+            $("#divCustomerProfile").html(response);
+             $('#ViewUserModal').modal();
+        });
+    }
+
+    function ReInitiate(id) {
+        var url = baseUrl + '/Onboarding/Index?id=' + id;
+        window.location = url;
+    }
+
+    function ArchiveRequest(id) {
+      var url = baseUrl + '/Onboarding/Archive';
+
+        var request = { 'Id': id }
+        Dialog("Are you sure you want to archive this request?", function () {
+            AjaxRequest(url, 'POST', request, timeoutUrl, function () {
+                DialogOkOnly("Request has now been archived", () => {
+                    window.location.reload();
+                });
+            });
+        });
+
+     }
+
+     function GetAttachments(accountNumber) {
+         var url = baseUrl + '/Onboarding/GetAttachments?accountNumber=' + accountNumber;
+         AjaxRequestNoLoaders(url, 'GET', null, timeoutUrl, function (response) {
+             $("#divUploadPreview").html(response);
+             $('.fordelete').hide();
+            document.getElementById("overlay").style.display = 'none';
+
+         });
+    }
+
+    function GetComments(requestId) {
+         var url = baseUrl + '/Onboarding/GetComments?requestId=' + requestId;
+         AjaxRequestNoLoaders(url, 'GET', null, timeoutUrl, function (response) {
+             $("#divComments").html(response);
+         });
+     }
+
+    function SubmitRequest(id, comment, requestType) {
+        var url = "";
+        if (requestType == '@RequestTypes.Onboarding') {
+            url = baseUrl + '/Onboarding/ApproveRequest';
+
+        } else {
+            url = baseUrl + '/Notifications/ApproveRequest';
+
+        }
+        var request = { 'Id': id , 'Comment': comment, 'RequestType' : requestType}
+        AjaxRequest(url, 'POST', request,timeoutUrl, function () {
+            $('#ViewUserModal').modal('hide');
+            DialogOkOnly("Approved successfully", () => {
+            window.location.reload();
+            });
+        }, function (error) {
+              $('#btnApprove').prop('disabled', false);
+              $('#btnReject').prop('disabled', false);
+              $.alert(error);
+        });
+    }
+
+    function RejectRequest(id, comment,requestType) {
+        var url = "";
+
+        if (requestType == '@RequestTypes.Onboarding') {
+            url = baseUrl + '/Onboarding/RejectOnboarding';
+
+        } else {
+            url = baseUrl + '/ProfileManagement/RejectRequest';
+
+        }
+
+        var request = { 'Id': id, 'Comment': comment }
+                AjaxRequest(url, 'POST', request, timeoutUrl, function () {
+             $('#ViewUserModal').modal('hide');
+                    DialogOkOnly("Request rejected successfully", () => {
+                        window.location.reload();
+                    });
+        }, function (error) {
+             $('#btnApprove').prop('disabled', false);
+             $('#btnReject').prop('disabled', false);
+            $.alert(error)
+       });
+    }
+
+    function ViewAttachment(id) {
+    var url = baseUrl + "/Onboarding/GetFile?Id=" + id;
+        window.open(url, "_blank");
+    }
+
+
+
+</script>

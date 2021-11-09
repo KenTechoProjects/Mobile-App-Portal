@@ -1,0 +1,68 @@
+﻿@model YellowStone.Web.ViewModels.AttachmentsViewModel
+
+<div class="row">
+    <div class="col-lg-12 text-center">
+        <p style="font-weight:800">Attachments</p>
+    </div>
+</div>
+
+@if (Model.IsSuccessful)
+{
+    var i = 1;
+
+
+
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10">
+            <table id="tblAttachment" class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Name</th>
+                        <th>Date Uploaded</th>
+                        <th class="fordelete">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model.AttachmentItems)
+                    {
+                        <tr>
+                            <td>
+                                @i
+                            </td>
+                            <td id="@item.Id" onclick="ViewAttachment(@item.Id)" class="clickable" style="text-decoration:underline">
+                                @String.Concat(item.FileName, ".", item.FileType)
+                            </td>
+                            <td>@item.DateUploaded</td>
+                            <td class="fordelete">
+                                <i class="fa fa-trash "></i>
+                                <img src="~/img/delete-icon.jpg" class="clickable" onclick="DeleteAttachment(@item.Id)" />
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-2"></div>
+
+    </div>
+}
+else
+{
+    <div class="col-lg-12 text-center">
+        <label style="font-weight:500;">No Attachments</label>
+    </div>
+}
+
+<script type="text/javascript">
+    var isSuccessful = '@Model.IsSuccessful';
+    if (isSuccessful != 'True') {
+        $("#btnProceed").prop("disabled", true);
+
+    } else {
+        $("#btnProceed").prop("disabled", false);
+    }
+</script>

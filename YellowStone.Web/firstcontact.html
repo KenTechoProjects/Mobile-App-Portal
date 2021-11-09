@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Whatsapp Dashboard">
+    <meta name="author" content="Digital Lab">
+    <title>Whatsapp::Role</title>
+    <!-- css-->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <!-- font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    
+  </head>
+  <body>
+        <!-- <div id="overlay">
+            <div><img class="spinner-logo" src="img/spinner-logo.jpg"></div>
+            <div class="spinner"></div> 
+        </div> -->
+    <header class="fdl-header">
+      <img src="img/fbn-logo.png" class="fdl-logo" > 
+      <p class="logo-tag">Profile Management Dashboard</p> 
+      <div class="staff-blk">
+        <ul>
+            <li class="profile-box">
+                <img src="img/stafficon.png" class="staff-icon">
+                <div class="staff-details">
+                    <p id="staffid">SN027658</p>
+                    <p id="lastlog">Last Login: Jul 06 2018</p>
+                    <p id="time">10:07am</p>
+                </div>
+                <img src="img/AndroidIcon 3@2.png" class="arrowdown" >
+                <ul class="sub-menu">
+                        <li>
+                            <a href="#">Logout</a>
+                        </li>
+                </ul>
+            </li>
+            
+        </ul>
+        
+      </div>
+
+    </header>
+    <div class="fdl-body" style="display:inline-block">
+        <div class="sidebar">
+            <nav class="sidebar-nav">
+            <ul class="nav">
+                <a class="nav-home" href="">
+                        <img src="img/home.png">Dashboard
+                    </a>
+                <li class="nav-item">
+                    <a class="nav-link nav-active" href="role.html">
+                    <i class="nav-icon icon-drop"></i> User Activity</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" id="nav-parent" href="department.html" data-toggle="collapse" data-target="#nav-children" aria-controls="nav-children" aria-expanded="false" aria-label="Toggle navigation">
+                     Click Me <i id="toggle-icon" class="fa fa-angle-down pull-right icon-icon"></i></a>
+                    <ul class="collapse" id="nav-children" >
+                        <li><a class="nav-link-children" href="role.html">
+                             Item 1</a></li>
+                        <li><a class="nav-link-children" href="role.html">
+                            Item 2</a></li>
+                        <li><a class="nav-link-children" href="role.html">
+                            Item 3</a></li>
+                    </ul>
+                </li> 
+                <li class="nav-item">
+                    <a class="nav-link" href="role.html">
+                    <i class="nav-icon icon-drop"></i> Notification</a>
+                </li> 
+            </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="main-body">
+        <div class="search-div">
+            <div class="search-div-2">
+                <input type="text" placeholder="Search: Phone number"  class="cus-search"/>
+                <button type="submit" class="btn-search-img"><img src="img/search.png" class="search-img"></button>
+            </div>
+        </div>
+        <div>
+            <table class="ctable">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Phone Number</td>
+                        <td>A/C Number</td>
+                        <td>Enrollment Status</td>
+                        <td>Profile Status</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="first-row">
+                        <td>Olufunso Okejimi</td>
+                        <td>08012346574</td>
+                        <td>3101811755</td>
+                        <td>Opted In 10/03/2018</td>
+                        <td>Locked 23/07/2018</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row strong" style="margin-top:27px">
+            <div class="col-md-3">
+                <p><span>Name:</span> Olufunso Okejimi</p>
+                <p><span>Account No:</span> 3101811755</p>
+                <p><span>Phone No:</span> 08163152616</p>
+            </div>
+            <div class="col-md-3">
+                <p><span>Date Enrolled:</span> 10/12/2018</p>
+                <p><span>Enrollment Status:</span> Opted In</p>
+                <p><span>Profile Status:</span> Locked</p>
+            </div>
+            <div class="col-md-5">
+                <p><span>Last Changed By:</span> SN234365</p>
+                <p><span>Last Changed Date/Time:</span> 13/02/2018 | 2:45pm</p>
+                <p><span>Last Change Reason:</span> Customer Validated</p>
+            </div>
+        </div>
+
+        <!-- belowbtables -->
+        <div>
+
+            <div>
+                <p>Customer Information History</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Date</td>
+                            <td>Activity</td>
+                            <td>Time</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Date</td>
+                            <td>Activity</td>
+                            <td>Time</td>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td>Activity</td>
+                            <td>Time</td>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td>Activity</td>
+                            <td>Time</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="theModal"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">First Bank Title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group row">
+                    <label for="id" class="col-sm-2 col-form-label">ID</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="id">
+                    </div>
+                    </div>
+                    <div class="form-group row">
+                    <label for="role" class="col-sm-2 col-form-label">Role</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="role" placeholder="role">
+                    </div>
+                    </div>
+                    <div class="form-group row">
+                    <label for="something" class="col-sm-2 col-form-label">Something</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="something" placeholder="Password">
+                    </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    
+    <!-- Javascript-->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+    // script for loader
+    // var overlay = document.getElementById("overlay");
+    // window.addEventListener('mousemove', function(){
+    // overlay.style.display = 'none';
+    // })
+    // script for logout
+    $('li.profile-box').hover(function() {
+	$(this).children('ul').slideDown();
+    }, function() {
+        $(this).children('ul').slideUp();
+    });
+
+    jQuery(document).ready(function(){ 
+        var bool = bool || true;
+        $("#nav-parent").click(function() {
+            if(bool){
+                $("#toggle-icon").removeClass('fa-angle-down').addClass('fa-angle-up');
+                bool = false;
+            }else{
+                $("#toggle-icon").removeClass('fa-angle-up').addClass('fa-angle-down');
+                bool = true;
+            }
+        });
+    })
+    
+    </script>
+    
+  </body>
+</html>
+
+
+

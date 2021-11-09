@@ -1,0 +1,342 @@
+﻿@model YellowStone.Web.ViewModels.DocumentViewModel
+@using  YellowStone.Services.DocumentReviewService.DTOs
+
+@using YellowStone.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@inject YellowStone.Services.IAppConfig appConfig
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var data = (bool)ViewBag.NewLunch;
+
+}
+
+<link href="~/css/notify.css" rel="stylesheet" />
+
+<div class="page-title-wrapper">
+    <div style="margin-top:-47px;">
+        <div class="alert mb-1" role="alert" style="background-color: #2F5B64; color: #fff;padding:2px;margin-left:20px;">
+            @Model.ReviewerMessage
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="alert" role="alert" style="background-color: #2F5B64; color: #fff;padding:2px;margin-left:20px;">
+            @Model.Description
+        </div>
+    </div>
+    <div class="row">
+        <input type="hidden" asp-for="@this.Model.PhoneNumber" id="phoneNumber" />
+        <input type="hidden" asp-for="@this.Model.AccountNumber" id="accountNumber" />
+        <input type="hidden" asp-for="@this.Model.IsBranchApprover" id="isBranchApprover" />
+
+        @*<div class="col-md-2">
+                <div class="input-group">
+                    <button class="btn btn-block " style="background-color: darkgoldenrod; color: #fff"><i class="fa fa-file"></i> Document</button>
+                </div>
+            </div>*@
+        <div class="col-md-6">
+
+            <div class="input-group">
+                <select id="documentType" class=" custom-select form-control" style="margin-right:10px">
+                    <option value="">Select document</option>
+                    <option value="1">PICTURE</option>
+                    <option value="2">IDENTIFICATION</option>
+                    @* <option value="3">SIGNATURE</option>
+                        <option value="4">UTILITY BILL</option>*@
+
+                    @*@foreach (var item in Model.CustomerDocument)
+                        {
+                            <option value='@item.DocumentTypeId'>@item.DocumentName</option>
+                        };*@
+                </select>
+
+            </div>
+        </div><br /><br /><br />
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card-body" style="height: 500px; overflow-y: scroll; background-color: #fff">
+
+                <div id="overlay" style="display:none">
+                    <div><img class="spinner-logo" src="~/img/spinner-logo.jpg"></div>
+                    <div class="spinner"></div>
+                </div>
+                <div id="documentpartialviewimage">
+
+                    <img src="" alt=" " id="imageUrl" height="500" width="500" />
+
+
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group mt-3">
+                <label for="" style="color: #022e64"><b>Action:</b></label>
+                <select class="custom-select form-control" asp-for="Action" id="action">
+                    <option selected value="">Choose Action...</option>
+                    <option value="1">Accept</option>
+                    <option value="0">Reject</option>
+                </select>
+
+            </div>
+            @if (Model.IsBranchApprover)
+            {
+                <div class="form-group">
+                    @*<label for="" style="color: #022e64"><b>Initiator Comment:</b></label>
+                        <textarea asp-for="InitiatorComment" id="InitiatorComment" name="InitiatorComment" class="form-control" cols="20" rows="3" readonly></textarea>*@
+
+                </div>
+            }
+            <div class="form-group">
+                <label for="" style="color: #022e64"><b>Comment:</b></label>
+                <textarea asp-for="Comment" name="Comment" class="form-control" id="comment" cols="20" rows="3"></textarea>
+
+            </div>
+            <div class="text-center"><button style="background-color: goldenrod; color: #fff" class="btn btn-sm" id="btnSave"><i class="fa fa-save"></i> Submit</button></div>
+        </div>
+    </div>
+
+</div>
+<script>
+//const { trace } = require("console");
+
+    $(document).ready(function () {
+       // var appBaseUrl = 'http://40.124.38.201/senegaldashboard/';  //'/***************/';
+   var appBaseUrl = '@appConfig.BasePath';
+        $("#loaderNew").hide("fast");
+        $("#imageUrl").hide("fast");
+
+    var isBranchApprover = $('#isBranchApprover').val();
+    var isApproved = false;
+
+    $('#documentType').on('change', function () {
+        var docType = $(this).val();
+        var phoneNo = $('#phoneNumber').val();
+        $("#loaderNew").show("slow");
+        $("#imageUrl").hide("fast");
+
+        if (!phoneNo || !docType) return;
+        $('#imageUrl').attr("src", '');
+        GetDocument(phoneNo, docType);
+        if (isBranchApprover.toLowerCase() === "true") {
+            GetInitiatorComment(phoneNo, docType);
+        }
+        $("#loaderNew").hide("fast");
+            $("#imageUrl"). show("slow");
+    });
+
+        $('#btnSave').click(function () {
+            document.getElementById("overlay").style.display = 'block';
+            var phoneNumber = $('#phoneNumber').val();
+            var docType = $('#documentType').val();
+            var docAction = $("#action").val();
+            var docComment = $("#comment").val();
+            var acctNumber = $('#accountNumber').val();
+
+            if (!docType) {
+                Notify("Please select document type"); document.getElementById("overlay").style.display = 'none';
+                return;
+            };
+            if (!docAction) {
+                Notify("document must be rejected/accepted."); document.getElementById("overlay").style.display = 'none';
+                return;
+            };
+            if (!docComment) {
+                document.getElementById("overlay").style.display = 'none';
+                Notify("Please provide comment");
+                return;
+            };
+            CheckDocumentApprovalStatus(phoneNumber, acctNumber, docType, docAction, docComment);
+            //SaveRequestAction(phoneNumber, acctNumber, docType, docAction, docComment);
+            document.getElementById("overlay").style.display = 'none';
+        });
+
+        function SaveRequestAction(phoneNumber, acctNumber, docType, docAction, docComment) {
+            console.log('11111111111111');
+            var saveRequestData = { "phoneNumber": phoneNumber, "acctNumber": acctNumber, "docType": docType, "docAction": docAction, "docComment": docComment };
+            console.log('2222222222222');
+            var url = appBaseUrl + "DocumentReview/SaveDocumentRequest";
+            $.ajax({
+
+                url: url,
+                type: 'GET',
+                data: saveRequestData,
+                dataType: 'json',
+                success: function (data) {
+                    console.log('33333333333');
+                    alert(data);
+                    Notify(data);
+                    $('#documentType').val('');
+                    $("#action").val('');
+                    $("#comment").val('');
+                    $('#imageUrl').attr("src", ''); document.getElementById("overlay").style.display = 'none';
+
+                    window.location.reload();
+                },
+                error: function (request, error) {
+                    console.log('444444444444'); document.getElementById("overlay").style.display = 'none';
+
+                    alert("Request: " + JSON.stringify(request));
+                }
+            });
+        }
+        function ClearForm() {
+            $('#documentType').val('');
+            $("#action").val('');
+            $("#comment").val('');
+            $('#imageUrl').attr("src", '');
+        }
+        function CheckDocumentApprovalStatus(phoneNumber, acctNumber, docType, docAction, docComment) {
+            var url = appBaseUrl + "DocumentReview/GetDocumentApprovalStatus";
+
+
+            $.ajax({
+
+                url: url,
+                type: 'GET',
+                data: {
+                    'phoneNumber': phoneNumber,
+                    'docType': docType
+                },
+                dataType: 'json',
+                success: function (data) {
+                    //Modified on the 02/11/2021
+                    //approved= isDocApproved ,sentforapproval
+                    if (data.approved === true && isBranchApprover.toLowerCase() === "false") {
+
+                        Notify("This document has been sent for  approval");
+                        ClearForm();
+                        return;
+                    }
+//Modified on the 02/11/2021
+                    if (data.approved === true && isBranchApprover.toLowerCase() === "true") {
+
+                        Notify("Duplicate request");
+                        ClearForm();
+                        return;
+                    }
+
+                    if (data.approved === false && data.sentforapproval == true) {
+
+                        if (docAction == 0 || docAction === "0") {
+                            var agree = confirm("Do you want to reject a request sent for approval? ");
+                            if (agree == true) {
+                                SaveRequestAction(phoneNumber, acctNumber, docType, docAction, docComment);
+                            }
+                     
+                            $('#imageUrl').attr("src", '');
+                            return;
+                        } else {
+
+
+                            if (docAction == 1 || docAction === "1" && isBranchApprover.toLowerCase() === "true") {
+                                SaveRequestAction(phoneNumber, acctNumber, docType, docAction, docComment);
+                            }
+                            return;
+                        }
+
+
+                        Notify("This document has already been sent for  approval");
+                        document.getElementById("overlay").style.display = 'none';
+                        $('#imageUrl').attr("src", '');
+                        ClearForm();
+                        return;
+                    }
+
+
+                    SaveRequestAction(phoneNumber, acctNumber, docType, docAction, docComment);
+                },
+                error: function (request, error) {
+                    alert("Request: " + JSON.stringify(request));
+
+                }
+            });
+
+
+        }
+        function GetInitiatorComment(phoneNumber, docType) {
+
+            var url = appBaseUrl + "DocumentReview/GetInitiatorComment";
+
+            $.ajax({
+
+                url: url,
+                type: 'GET',
+                data: {
+                    'phoneNumber': phoneNumber,
+                    'docType': docType
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $('#InitiatorComment').val(data);
+
+                },
+                error: function (request, error) {
+                    alert("Request: " + JSON.stringify(request));
+
+                }
+            });
+        }
+        function GetDocument(phoneNumber, docType) {
+            $("#loaderNew").show("slow");
+            $("#imageUrl").hide("fast");
+            var url = appBaseUrl + "DocumentReview/GetDocument";
+            document.getElementById("overlay").style.display = 'block';
+            $.ajax({
+
+                url: url,
+                type: 'GET',
+                data: {
+                    'phoneNumber': phoneNumber,
+                    'docType': docType
+                },
+                dataType: 'json',
+                success: function (data) {
+                    //if (!data) {
+                    //    Notify("Document not found");
+                    //    $("#loaderNew").hide("fast");
+                    //    $("#imageUrl").hide("fast");
+                    //    document.getElementById("overlay").style.display = 'none';
+                    //    return;
+                    //}
+                    if (data.errorOcurred === true) {
+                        Notify("An error ocurred try again!");
+                        $("#loaderNew").hide("fast");
+                        $("#imageUrl").hide("fast");
+                        document.getElementById("overlay").style.display = 'none';
+                        return;
+                    }
+                    else if ((data.image === null || data.image === "") && data.rrrorOcurred === false){
+                        Notify("Document not found");
+                        $("#loaderNew").hide("fast");
+                        $("#imageUrl").hide("fast");
+                        document.getElementById("overlay").style.display = 'none';
+                        return;
+                    }
+
+                    document.getElementById("overlay").style.display = 'none';
+                    $("#loaderNew").hide("fast");
+                    $("#imageUrl").show("slow");
+                    $('#imageUrl').attr("src", "data:image/png;base64," + data.image);
+
+                },
+                error: function (request, error) {
+                    document.getElementById("overlay").style.display = 'none';
+                    $("#loaderNew").hide("fast");
+                    $("#imageUrl").hide("fast");
+                        Notify("An error occurred!");
+                    //alert("Request: " + JSON.stringify(request));
+                }
+            }).always(RemoveLoder);
+
+        }
+        function RemoveLoder() {
+            document.getElementById("overlay").style.display = 'none';
+        }
+    });
+</script>
